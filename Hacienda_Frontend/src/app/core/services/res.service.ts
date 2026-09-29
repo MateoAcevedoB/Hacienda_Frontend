@@ -12,7 +12,6 @@ import {
 
 const URL_POTREROS = `${environment.apiUrl}/api/potreros`;
 
-/** Reses de un potrero y su venta (endpoints anidados de PotrerosController y VentasController). */
 @Injectable({ providedIn: 'root' })
 export class ResService {
   private readonly http = inject(HttpClient);

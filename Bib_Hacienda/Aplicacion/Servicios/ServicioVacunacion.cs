@@ -7,9 +7,6 @@ using System.Linq;
 
 namespace Bib_Hacienda.Aplicacion
 {
-    // OCP: el if/else por tipo de Res que tenía Hacienda.aplicar_vacuna en el
-    // AS-IS (is Ternero/Novillo/Cebon para fijar max_bac/max_viv) desaparece;
-    // consulta res.MaxVacunasBacterianas/Vivas de forma polimórfica.
     public class ServicioVacunacion : IVacunacion
     {
         private IRepositorioPotreros repositorioPotreros;
@@ -25,8 +22,6 @@ namespace Bib_Hacienda.Aplicacion
             this.publisherVacunacionCompletada = publisherVacunacionCompletada;
         }
 
-        // Misma lógica que Hacienda.aplicar_vacuna del AS-IS, salvo el cálculo
-        // de máximos por tipo (ahora polimórfico, ver nota de clase).
         public ResultadoOperacion aplicar_vacuna(Vacuna vacuna, string nombre, string id_potrero)
         {
             try
@@ -50,13 +45,11 @@ namespace Bib_Hacienda.Aplicacion
                 byte contador_bacterianas = 0;
                 byte contador_vivas = 0;
 
-                // Validar si la vacuna ya fue aplicada (por nombre o lote)
                 if (res.L_vacunas_aplicadas.Any(v => v.Nombre == vacuna.Nombre || v.Lote == vacuna.Lote))
                 {
                     return ResultadoOperacion.Fallo($"La vacuna '{vacuna.Nombre}' ya fue aplicada a la res '{res.Nombre}'.");
                 }
 
-                //Contar las vacunas ya aplicadas a la res
                 foreach (Vacuna vac in res.L_vacunas_aplicadas)
                 {
                     if (vac is Bacteriana)
@@ -69,7 +62,6 @@ namespace Bib_Hacienda.Aplicacion
                     }
                 }
 
-                //Máximos según el tipo de res (OCP: miembro polimórfico, ya no is Ternero/Cebon/Novillo)
                 byte max_bac = res.MaxVacunasBacterianas;
                 byte max_viv = res.MaxVacunasVivas;
 
@@ -83,7 +75,6 @@ namespace Bib_Hacienda.Aplicacion
                     return ResultadoOperacion.Fallo($"No se puede aplicar más vacunas vivas a la res '{res.Nombre}'. Ya tiene las {max_viv} permitidas.");
                 }
 
-                //Suscribirse al evento con una lambda para capturar el mensaje
                 publisherVacunaVencida.evt_vacuna_vencida += (mensaje) =>
                 {
                     mensaje_vacuna = mensaje;
@@ -125,7 +116,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // Misma lógica que VacunaService.ObtenerVacunasAplicadas del AS-IS.
         public List<Vacuna> ObtenerVacunasAplicadas(string potreroId, string nombreRes)
         {
             try

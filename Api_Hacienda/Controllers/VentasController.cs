@@ -24,11 +24,6 @@ namespace Api_Hacienda.Controllers
             this.servicioPotreros = servicioPotreros;
         }
 
-        // ------------------------------------------------------------
-        // GET /api/ventas
-        // GET /api/ventas?potreroId=...
-        // GET /api/ventas?desde=...&hasta=...
-        // ------------------------------------------------------------
         
         [HttpGet("ventas")]
         public ActionResult<List<VentaResponse>> ObtenerVentas([FromQuery] string? potreroId, [FromQuery] DateTime? desde, [FromQuery] DateTime? hasta)
@@ -64,9 +59,6 @@ namespace Api_Hacienda.Controllers
             return Ok(ventas.Select(AConVentaResponse).ToList());
         }
 
-        // ------------------------------------------------------------
-        // POST /api/potreros/{potreroId}/reses/{nombre}/vender
-        // ------------------------------------------------------------
         
         [HttpPost("potreros/{potreroId}/reses/{nombre}/vender")]
         public ActionResult<ResultadoOperacion> Vender(string potreroId, string nombre, [FromBody] VenderResRequest request)

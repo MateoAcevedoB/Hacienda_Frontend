@@ -7,17 +7,12 @@ using System.Threading.Tasks;
 
 namespace Bib_Hacienda.Dominio
 {
-    public class Cebon : Res //Hereda de Res
+    public class Cebon : Res
     {
-        //Constructor
         public Cebon(string nombre, uint peso, ushort edad) : base(nombre, peso, edad)
         {
         }
 
-        // OCP (H-10): reemplaza al antiguo override de Edad, que lanzaba
-        // Exception si el valor no estaba entre edad_max_ternero (exclusivo)
-        // y edad_max_cebon (inclusive). Misma regla de negocio, expuesta
-        // ahora como consulta.
         public override bool EsEdadValida(ushort edad)
         {
             return edad > ReglaRes.edad_max_ternero && edad <= ReglaRes.edad_max_cebon;

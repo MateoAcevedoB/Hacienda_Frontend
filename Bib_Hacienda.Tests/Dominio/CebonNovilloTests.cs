@@ -4,20 +4,14 @@ using Xunit;
 
 namespace Bib_Hacienda.Tests.Dominio
 {
-    // FASE 4C-2: unit tests de Cebon y Novillo (Bib_Hacienda.Dominio),
-    // basados en el código REAL de Cebon.cs / Novillo.cs / ReglaRes.cs /
-    // ReglaVacuna.cs. Cobertura previa: Cebon 50%, Novillo 30% (los tests
-    // de ServicioPotreros solo usaban Ternero como caso feliz). Cubre los
-    // límites de EsEdadValida (LSP, H-08) y los miembros polimórficos de
-    // peso/vacunas (OCP, H-10).
 
     public class CebonTests
     {
         [Theory]
-        [InlineData(12, false)] // límite inferior exclusivo: pertenece a Ternero
+        [InlineData(12, false)]
         [InlineData(13, true)]
         [InlineData(30, true)]
-        [InlineData(48, true)] // límite superior inclusivo
+        [InlineData(48, true)]
         [InlineData(49, false)]
         public void EsEdadValida_DebeRespetarRangoDeCebon(ushort edad, bool esperado)
         {
@@ -53,7 +47,7 @@ namespace Bib_Hacienda.Tests.Dominio
     {
         [Theory]
         [InlineData(47, false)]
-        [InlineData(48, false)] // límite inferior exclusivo: pertenece a Cebon
+        [InlineData(48, false)]
         [InlineData(49, true)]
         [InlineData(100, true)]
         public void EsEdadValida_DebeRespetarRangoDeNovillo(ushort edad, bool esperado)

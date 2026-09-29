@@ -5,7 +5,7 @@ using p_mvcHacienda.Models;
 
 namespace p_mvcHacienda.Controllers
 {
-    [Authorize] // Proteger todo el controlador
+    [Authorize]
     public class HomeController : Controller
     {
 

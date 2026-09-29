@@ -23,10 +23,6 @@ namespace Api_Hacienda.Controllers
             this.servicioInventarioVacunas = servicioInventarioVacunas;
         }
 
-        // ------------------------------------------------------------
-        // GET /api/vacunas
-        // ------------------------------------------------------------
-        //
         
         [HttpGet]
         public ActionResult<List<VacunaResponse>> ObtenerDisponibles()
@@ -35,10 +31,6 @@ namespace Api_Hacienda.Controllers
             return Ok(vacunas.Select(AConVacunaResponse).ToList());
         }
 
-        // ------------------------------------------------------------
-        // POST /api/vacunas
-        // ------------------------------------------------------------
-        //
         
         [HttpPost]
         public ActionResult<ResultadoOperacion> Crear([FromBody] VacunaRequest request)

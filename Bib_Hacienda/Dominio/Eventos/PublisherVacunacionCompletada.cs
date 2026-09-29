@@ -8,16 +8,11 @@ using System.Threading.Tasks;
 
 namespace Bib_Hacienda.Dominio.Eventos
 {
-    // OCP (H-10): ya no verifica "is Ternero/is Novillo/is Cebon"; consulta
-    // los miembros polimórficos Res.MaxVacunasBacterianas / Res.MaxVacunasVivas.
-    // Mismo mensaje/comportamiento observable que en el AS-IS.
     public class PublisherVacunacionCompletada
     {
-        //Definicion del delegado y el evento (con mensaje)
         public delegate void dele_vacunacion_completada(string mensaje);
         public event dele_vacunacion_completada evt_vacunacion_completada;
 
-        //Metodo para informar que una res ha completado su esquema de vacunacion
         public bool Informar_Vacunacion_Completada(Res res, ushort contador_bacterianas, ushort contador_vivas)
         {
             try
@@ -27,10 +22,8 @@ namespace Bib_Hacienda.Dominio.Eventos
                     throw new ArgumentNullException(nameof(res), "La res no puede ser null");
                 }
 
-                //Verificar si la res ha completado su esquema de vacunacion
                 bool esquema_completo = contador_bacterianas >= res.MaxVacunasBacterianas && contador_vivas >= res.MaxVacunasVivas;
 
-                // Disparar el evento con el mensaje apropiado
                 if (evt_vacunacion_completada != null)
                 {
                     string mensaje;

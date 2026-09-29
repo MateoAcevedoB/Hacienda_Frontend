@@ -8,12 +8,10 @@ namespace p_mvcHacienda.Controllers
 {
     public class VacunaController : Controller
     {
-        // Atributos
         private readonly ServicioInventarioVacunas _servicioInventarioVacunas;
         private readonly ServicioVacunacion _servicioVacunacion;
         private readonly ServicioPotreros _servicioPotreros;
 
-        //Constructor con inyección de dependencias
         public VacunaController(ServicioInventarioVacunas servicioInventarioVacunas, ServicioVacunacion servicioVacunacion, ServicioPotreros servicioPotreros)
         {
             _servicioInventarioVacunas = servicioInventarioVacunas;
@@ -21,7 +19,6 @@ namespace p_mvcHacienda.Controllers
             _servicioPotreros = servicioPotreros;
         }
 
-        // GET: Vacuna/Index - Listar todas las vacunas
         [HttpGet]
         public ActionResult Index()
         {
@@ -33,14 +30,12 @@ namespace p_mvcHacienda.Controllers
             return View(vacunas);
         }
 
-        // GET: Vacuna/Create - Mostrar formulario de creación
         [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
 
-        // GET: Vacuna/Aplicar - Mostrar formulario de aplicación
         [HttpGet]
         public ActionResult Aplicar()
         {
@@ -50,7 +45,6 @@ namespace p_mvcHacienda.Controllers
             return View();
         }
 
-        // POST: Vacuna/Create - Procesar creación de vacuna
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(string tipoVacuna, string nombre, string lote,
@@ -59,7 +53,6 @@ namespace p_mvcHacienda.Controllers
         {
             try
             {
-                // Validar campos requeridos básicos
                 if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(lote))
                 {
                     ViewBag.Mensaje = "El nombre y lote son requeridos";
@@ -67,7 +60,6 @@ namespace p_mvcHacienda.Controllers
                     return View();
                 }
 
-                // Parsear fechas desde inputs HTML date (yyyy-MM-dd)
                 if (!DateTime.TryParseExact(fechaVencimiento, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var fechaVenc))
                 {
                     ViewBag.Mensaje = "Fecha de vencimiento inválida";
@@ -81,7 +73,6 @@ namespace p_mvcHacienda.Controllers
                     return View();
                 }
 
-                // Reglas simples de fecha
                 if (fechaAplic > fechaVenc)
                 {
                     ViewBag.Mensaje = "La fecha de aplicación no puede ser posterior a la fecha de vencimiento";
@@ -91,7 +82,6 @@ namespace p_mvcHacienda.Controllers
 
                 if (tipoVacuna == "Bacteriana" && !periodoAplicacion.HasValue)
                 {
-                    //HasValue para validar que no sea nulo la entrada del formulario en la vista
                     ViewBag.Mensaje = "El período de aplicación es requerido para vacunas bacterianas";
                     ViewBag.TipoMensaje = "danger";
                     return View();
@@ -104,9 +94,6 @@ namespace p_mvcHacienda.Controllers
                     return View();
                 }
 
-                // ServicioInventarioVacunas.CrearVacuna decide bacteriana-vs-viva según
-                // qué parámetro opcional llega con valor (mismo criterio que el if/else
-                // tipoVacuna == "Bacteriana" del AS-IS, ahora centralizado en el servicio).
                 var resultado = _servicioInventarioVacunas.CrearVacuna(nombre, lote, fechaVenc, fechaAplic, periodoAplicacion, atenuacion);
 
                 if (resultado.Exito)
@@ -130,7 +117,6 @@ namespace p_mvcHacienda.Controllers
             }
         }
 
-        // POST: Vacuna/Aplicar - Procesar aplicación de vacuna
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Aplicar(string potreroId, string nombreRes, string loteVacuna)
@@ -147,9 +133,6 @@ namespace p_mvcHacienda.Controllers
                     return View();
                 }
 
-                // Buscar la vacuna disponible por su lote (ServicioInventarioVacunas
-                // no expone una búsqueda directa por lote en el UML; se filtra sobre
-                // el catálogo de disponibles, igual que hacía VacunaService.AplicarVacuna).
                 var vacuna = _servicioInventarioVacunas.ObtenerVacunasDisponibles()
                     .FirstOrDefault(v => v.Lote == loteVacuna);
 

@@ -10,7 +10,6 @@ import { FiltroVentas, VentaResponse } from '../../core/models/venta.models';
 import { PotreroService } from '../../core/services/potrero.service';
 import { VentaService } from '../../core/services/venta.service';
 
-/** Convierte 'YYYY-MM-DD' en el instante de inicio o fin de ese día (sin zona horaria). */
 export function limiteDeFecha(fecha: string, fin: boolean): string {
   return `${fecha}T${fin ? '23:59:59' : '00:00:00'}`;
 }

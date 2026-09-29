@@ -160,7 +160,6 @@ export class PotreroDetalleComponent {
       });
   }
 
-  /** Refresca potrero y reses sin volver a mostrar el estado de carga inicial. */
   private recargar(): void {
     const potrero = this.potrero();
     if (!potrero) {

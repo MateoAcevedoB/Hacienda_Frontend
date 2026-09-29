@@ -7,20 +7,6 @@ using Bib_Hacienda.Dominio;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // Misma lógica que PersistenciaService.GuardarUsuarios/CargarUsuarios
-    // del AS-IS ("validación simple, sin proxies"). El UML no le asigna a
-    // esta clase ningún IValidador* (a diferencia de los otros tres
-    // RepositorioXTexto): la validación simple de nombre/contraseña no
-    // vacíos ya la hace ServicioAutenticacion.crear_usuario antes de llamar
-    // a Agregar (ver Aplicacion/Servicios/ServicioAutenticacion.cs), así que
-    // este repositorio no repite esa validación.
-    //
-    // El UML no muestra explícitamente el constructor de esta clase (a
-    // diferencia de los otros tres RepositorioXTexto, que sí lo declaran),
-    // pero el campo "- serializadorUsuario : ISerializador<Usuario>" no
-    // podría inicializarse de otra forma sin violar encapsulamiento; se
-    // agrega el constructor mínimo necesario para recibirlo, análogo al
-    // patrón de los demás repositorios.
     public class RepositorioUsuariosTexto : IRepositorioUsuarios
     {
         private const string ArchivoUsuarios = "Usuarios.txt";
@@ -58,9 +44,6 @@ namespace Bib_Hacienda.Infraestructura
             }
             catch (Exception ex)
             {
-                // Misma degradación que CargarUsuarios en el AS-IS: no
-                // interrumpe la aplicación por un archivo de usuarios
-                // corrupto, retorna lista vacía.
                 Console.WriteLine($"Error al cargar usuarios: {ex.Message}");
                 return new List<Usuario>();
             }

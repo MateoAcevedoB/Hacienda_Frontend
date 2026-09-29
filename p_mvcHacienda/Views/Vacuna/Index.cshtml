@@ -7,7 +7,6 @@
 }
 
 <div class="container mt-4">
- <!-- Encabezado -->
  <div class="aw-page-header mb-4 d-flex justify-content-between align-items-center">
  <div>
  <h1 class="display-6 fw-bold mb-1" style="color: var(--aw-text);">
@@ -27,7 +26,6 @@
  </div>
  </div>
 
- <!-- Mensaje de éxito/error -->
  @if (TempData["Mensaje"] != null)
  {
  <div class="alert alert-@TempData["TipoMensaje"] alert-dismissible fade show" role="alert">
@@ -36,7 +34,6 @@
  </div>
  }
 
- <!-- Tarjetas de estadísticas -->
  @if (estadisticas != null)
  {
  <div class="row g-3 mb-4">
@@ -48,7 +45,6 @@
  </div>
  }
 
- <!-- Tabla de vacunas -->
  @if (Model != null && Model.Any())
  {
  <div class="aw-card mt-3 aw-reveal" style="transition-delay: .5s;">

@@ -8,17 +8,6 @@ using Bib_Hacienda.Dominio.Validacion;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // Misma lógica que PersistenciaService.GuardarVacunas/CargarVacunas del
-    // AS-IS (inventario de vacunas disponibles; no incluye vacunas ya
-    // aplicadas, ver nota en SerializadorVacuna del Bloque 3A).
-    //
-    // Remover(vacuna) reemplaza lo que en el AS-IS era, en la práctica,
-    // "sacar la vacuna de _hacienda.L_vacunas en memoria y volver a llamar a
-    // GuardarVacunas con la lista completa" (VacunaService.AplicarVacuna).
-    // Aquí, al no existir un método de reescritura masiva en
-    // IRepositorioVacunas, Remover relee el inventario completo, descarta la
-    // entrada que coincide (mismo criterio de igualdad que el resto del
-    // proyecto: Nombre + Lote) y reescribe el archivo con el resto.
     public class RepositorioVacunasTexto : IRepositorioVacunas
     {
         private const string ArchivoVacunas = "Vacunas.txt";
@@ -76,18 +65,6 @@ namespace Bib_Hacienda.Infraestructura
             File.WriteAllLines(ruta, lineas);
         }
 
-        // FASE 2C: implementación de IRepositorioVacunas.MarcarComoAplicada.
-        //
-        // Vacunas.txt solo modela el inventario "disponible" (ver comentario
-        // de clase); no existe, en este formato, ninguna forma de expresar
-        // "vacuna aplicada a la Res X" (no hay tabla/archivo de Reses con
-        // identidad propia fuera de un Potrero, ni un Id de Res que
-        // referenciar). El parámetro res se recibe para cumplir el contrato
-        // de IRepositorioVacunas, pero este repositorio no puede persistir
-        // esa asociación con el formato de texto existente -mismo límite ya
-        // documentado arriba para Remover-, así que el efecto observable es
-        // idéntico al que ya tenía antes de esta fase (sacar la vacuna del
-        // inventario disponible): se delega directamente en Remover.
         public void MarcarComoAplicada(Vacuna vacuna, Res res)
         {
             Remover(vacuna);

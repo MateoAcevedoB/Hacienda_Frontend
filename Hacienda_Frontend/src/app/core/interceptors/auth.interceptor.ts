@@ -5,10 +5,6 @@ import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService, LOGIN_URL } from '../services/auth.service';
 
-/**
- * Adjunta "Authorization: Bearer <token>" a las peticiones hacia Api_Hacienda
- * (excepto el login) y cierra la sesión si un endpoint protegido responde 401.
- */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
 

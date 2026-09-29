@@ -4,15 +4,6 @@ using Bib_Hacienda.Dominio;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // SC-3: reutiliza ISerializador<T> (no se crea una interfaz nueva, ver
-    // nota en ISerializador.cs). Formato de línea para HistoriaClinica.txt:
-    // "PotreroId|NombreRes|Fecha(yyyy-MM-dd)|TipoEvento|Descripcion".
-    //
-    // Descripcion es el ÚLTIMO campo de la línea. Al deserializar se separa
-    // con un límite de 5 partes (Split('|', 5)) para que un '|' dentro de la
-    // descripción no rompa el formato; al serializar se sanea la
-    // descripción quitando saltos de línea, para no partir el archivo en
-    // líneas adicionales.
     public class SerializadorEventoClinico : ISerializador<EventoClinico>
     {
         public string Serializar(EventoClinico entidad)

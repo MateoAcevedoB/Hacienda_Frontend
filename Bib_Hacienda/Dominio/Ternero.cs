@@ -7,16 +7,12 @@ using System.Threading.Tasks;
 
 namespace Bib_Hacienda.Dominio
 {
-    public class Ternero : Res //Hereda de Res
+    public class Ternero : Res
     {
-        // Constructor
         public Ternero(string nombre, uint peso, ushort edad) : base(nombre, peso, edad)
         {
         }
 
-        // OCP (H-10): reemplaza al antiguo override de Edad, que lanzaba
-        // Exception si el valor superaba edad_max_ternero. Misma regla de
-        // negocio (value <= edad_max_ternero), expuesta ahora como consulta.
         public override bool EsEdadValida(ushort edad)
         {
             return edad <= ReglaRes.edad_max_ternero;

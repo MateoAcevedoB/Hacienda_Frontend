@@ -34,8 +34,6 @@ namespace Api_Hacienda.Autenticacion
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Nombre),
-                // Mismo valor que ServicioAutenticacion usa como "rol" hoy
-                // (usuario.Nombre); ver comentario en IGeneradorTokenJwt.
                 new Claim(ClaimTypes.Role, rol),
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Nombre),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

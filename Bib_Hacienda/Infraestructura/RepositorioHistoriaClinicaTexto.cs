@@ -8,14 +8,6 @@ using Bib_Hacienda.Dominio.Validacion;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // SC-3: mismo patrón que RepositorioVacunasTexto (H-11): un archivo de
-    // texto plano en la carpeta Datos (DirectorioDatos), validación
-    // explícita antes de persistir (sin AOP), altas por apéndice.
-    //
-    // A diferencia del inventario de vacunas, la historia clínica no tiene
-    // operación de "Remover" (SC-3 solo pide asociar, registrar y
-    // consultar), por lo que el archivo solo crece por apéndice, igual que
-    // Vacunas.txt en sus altas.
     public class RepositorioHistoriaClinicaTexto : IRepositorioHistoriaClinica
     {
         private const string ArchivoHistoriaClinica = "HistoriaClinica.txt";

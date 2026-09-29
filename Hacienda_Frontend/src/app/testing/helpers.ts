@@ -7,7 +7,6 @@ import { errorInterceptor } from '../core/interceptors/error.interceptor';
 
 export const CLAVE_SESION = 'hacienda-tobe.sesion';
 
-/** Guarda una sesión vigente en localStorage antes de crear AuthService. */
 export function guardarSesion(rol: string, nombre = rol, token = 'jwt-de-prueba'): void {
   localStorage.setItem(
     CLAVE_SESION,
@@ -15,7 +14,6 @@ export function guardarSesion(rol: string, nombre = rol, token = 'jwt-de-prueba'
   );
 }
 
-/** Proveedores comunes: HTTP simulado (no llama al backend real) con los interceptores reales. */
 export function proveedoresHttpDePrueba() {
   return [
     provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
@@ -24,7 +22,6 @@ export function proveedoresHttpDePrueba() {
   ];
 }
 
-/** Escribe en un input/select y dispara el evento para que el formulario reactivo lo lea. */
 export function escribir(raiz: HTMLElement, selector: string, valor: string): void {
   const el = raiz.querySelector<HTMLInputElement | HTMLSelectElement>(selector);
   if (!el) {

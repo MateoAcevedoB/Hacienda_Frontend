@@ -6,16 +6,6 @@ using System.Linq;
 
 namespace Bib_Hacienda.Aplicacion
 {
-    // DIP (H-09): ya no guarda una lista estática mutable en memoria; depende
-    // de IRepositorioUsuarios. El hashing de contraseñas se delega a
-    // IServicioHash.
-    //
-    // H-16: en el AS-IS existían DOS mecanismos de autenticación -
-    // Autenticacion (huérfana, implementaba IAutenticacion pero nunca se
-    // instanciaba desde Program.cs/Controllers) y UsuarioService (la que de
-    // verdad usa AccountController, con su propia lista estática y su propio
-    // ValidateUserAsync). El TO-BE los unifica aquí: única puerta de entrada
-    // para validar credenciales, consultar usuarios y autorizar operaciones.
    
     
     public class ServicioAutenticacion : IAutenticacion
@@ -31,9 +21,6 @@ namespace Bib_Hacienda.Aplicacion
             this.proveedorPermisos = proveedorPermisos;
         }
 
-        // Misma validación que Autenticacion.crear_usuario / UsuarioService.CrearUsuario
-        // del AS-IS. La contraseña ya no se guarda en texto plano (H-09): se
-        // hashea con IServicioHash antes de construir el Usuario.
         public ResultadoOperacion crear_usuario(string nombre, string contrasena)
         {
             try
@@ -78,9 +65,6 @@ namespace Bib_Hacienda.Aplicacion
             };
         }
 
-        // Misma lógica que Autenticacion.ValidarCredenciales del AS-IS, salvo
-        // que la comparación ya no es de texto plano (u.Contrasena == contrasena)
-        // sino vía IServicioHash.Verificar contra el hash guardado (H-09).
         public bool ValidarCredenciales(string nombre, string contrasena)
         {
             Usuario usuario = repositorioUsuarios.ObtenerTodos()
@@ -91,9 +75,6 @@ namespace Bib_Hacienda.Aplicacion
                 return false;
             }
 
-            // Compatibilidad con datos heredados: algunos archivos de usuarios
-            // todavía guardan la contraseña en texto plano. Primero validamos el
-            // formato nuevo (hash) y, si no coincide, aceptamos el valor legado.
             if (servicioHash.Verificar(contrasena, usuario.ContrasenaHash))
             {
                 return true;
@@ -102,7 +83,6 @@ namespace Bib_Hacienda.Aplicacion
             return string.Equals(contrasena, usuario.ContrasenaHash, StringComparison.Ordinal);
         }
 
-        // Misma lógica que Autenticacion.buscar_usuario del AS-IS.
         public Usuario buscar_usuario(string nombre)
         {
             try
@@ -127,14 +107,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // LSP (ADR-5): antes lanzaba excepción tanto en éxito como en rechazo
-        // (Autenticacion.AutorizarOperacion del AS-IS); ahora retorna
-        // ResultadoOperacion de forma uniforme, con el MISMO texto descriptivo.
-        //
-        // OCP: el if/else de admin/empleado/visitante se aisló en
-        // IProveedorPermisos/ProveedorPermisosPorRol. Ver la nota de
-        // inconsistencia sobre "rol" en ProveedorPermisosPorRol.cs: se pasa
-        // usuario.Nombre como rol, igual que hacía el AS-IS.
         public ResultadoOperacion AutorizarOperacion(Usuario usuario, string operacion)
         {
             if (usuario == null)

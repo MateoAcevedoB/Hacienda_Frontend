@@ -5,11 +5,6 @@ using static Bib_Hacienda.Dominio.Viva;
 
 namespace Bib_Hacienda.Tests.Dominio
 {
-    // FASE 4C-2: unit tests de Bacteriana y Viva (Bib_Hacienda.Dominio),
-    // basados en el código REAL de Bacteriana.cs / Viva.cs / ReglaVacuna.cs.
-    // Cobertura previa: Bacteriana 85.7% (faltaba la rama de excepción del
-    // setter Periodo_aplicacion), Viva 57% (solo se probaba a través de
-    // ServicioVacunacion con mocks del validador).
 
     public class BacterianaTests
     {
@@ -19,9 +14,9 @@ namespace Bib_Hacienda.Tests.Dominio
         }
 
         [Theory]
-        [InlineData(2u)] // límite inferior
+        [InlineData(2u)]
         [InlineData(3u)]
-        [InlineData(4u)] // límite superior
+        [InlineData(4u)]
         public void PeriodoAplicacion_DentroDelRango_DebeAsignarse(uint periodo)
         {
             var vacuna = Nueva(periodo);

@@ -6,11 +6,6 @@ using Xunit;
 
 namespace Bib_Hacienda.Tests.Dominio
 {
-    // FASE 4C-2: unit tests de Potrero (Bib_Hacienda.Dominio), basados en el
-    // código REAL de Potrero.cs / ReglaPotrero.cs. Cobertura previa: 68.6%
-    // líneas / 50% ramas (ServicioPotrerosTests solo prueba AgregarRes en
-    // potreros con pocas reses; nunca se llega a los eventos de mitad/lleno
-    // de capacidad ni a los casos de error de BuscarRes).
     public class PotreroTests
     {
         private static Potrero NuevoPotrero(string id = "P1")

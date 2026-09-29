@@ -17,14 +17,11 @@ namespace Bib_Hacienda.Aplicacion
             this.publisherPesoVenta = publisherPesoVenta;
         }
 
-        // Misma lógica que Hacienda.alimentar_res(id_potrero, nombre) del AS-IS:
-        // incrementa el peso en 1 e informa los eventos de peso.
         public ResultadoOperacion AlimentarRes(string id_potrero, string nombre)
         {
             return AlimentarInterno(id_potrero, nombre, 1);
         }
 
-        // Misma lógica que la sobrecarga Hacienda.alimentar_res(id_potrero, nombre, cantidadAlimento).
         public ResultadoOperacion AlimentarRes(string id_potrero, string nombre, uint cantidadAlimento)
         {
             return AlimentarInterno(id_potrero, nombre, cantidadAlimento);

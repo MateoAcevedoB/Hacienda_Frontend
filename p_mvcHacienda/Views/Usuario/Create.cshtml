@@ -5,7 +5,6 @@
 <div class="container mt-4">
     <div class="row justify-content-center">
    <div class="col-md-6">
-            <!-- Encabezado -->
     <div class="aw-page-header mb-4">
         <h1 class="display-6 fw-bold mb-1" style="color: var(--aw-text);">
         👤 Crear Nuevo Usuario
@@ -13,7 +12,6 @@
         <p class="text-muted mb-0">Registra un nuevo usuario en el sistema</p>
           </div>
 
-    <!-- Mensaje de error -->
 @if (ViewBag.Mensaje != null)
             {
    <div class="alert alert-@ViewBag.TipoMensaje alert-dismissible fade show" role="alert">
@@ -22,14 +20,12 @@
      </div>
      }
 
- <!-- Formulario -->
       <div class="aw-card aw-reveal">
         <div class="aw-card-header">Datos del Usuario</div>
       <div class="card-body p-4">
 <form asp-action="Create" method="post" id="formUsuario">
      @Html.AntiForgeryToken()
 
-<!-- Nombre de Usuario -->
       <div class="mb-4">
         <label for="nombre" class="form-label fw-bold">Nombre de Usuario</label>
   <div class="input-group input-group-lg">
@@ -46,7 +42,6 @@
        </small>
             </div>
 
-           <!-- Contraseña -->
         <div class="mb-4">
        <label for="contrasena" class="form-label fw-bold">Contraseña</label>
   <div class="input-group input-group-lg">
@@ -63,7 +58,6 @@
          <small class="form-text text-muted">Mínimo 4 caracteres para mayor seguridad</small>
       </div>
 
-      <!-- Confirmar Contraseña -->
        <div class="mb-4">
        <label for="confirmarContrasena" class="form-label fw-bold">Confirmar Contraseña</label>
  <div class="input-group input-group-lg">
@@ -79,7 +73,6 @@
    </small>
          </div>
 
-   <!-- Botones -->
        <div class="d-flex justify-content-end mt-4">
         <a asp-action="Index" class="btn aw-btn aw-btn-secondary me-2">Cancelar</a>
  <button type="submit" class="btn aw-btn aw-btn-primary" id="btnSubmit">
@@ -91,7 +84,6 @@
  </div>
     </div>
 
-     <!-- Recomendaciones de seguridad -->
        <div class="aw-card mt-4 aw-reveal" style="border-left: 4px solid #ff9800; transition-delay: .2s;">
    <div class="card-body p-4">
     <div class="d-flex align-items-center mb-3">
@@ -113,7 +105,6 @@
 
 @section Scripts {
     <script>
-        // Mostrar/ocultar contraseña
         document.getElementById('togglePassword')?.addEventListener('click', function() {
    var passwordInput = document.getElementById('inputPassword');
  var icon = this.querySelector('.material-icons-outlined');
@@ -122,7 +113,6 @@
   icon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
  });
 
-        // Validar que las contraseñas coincidan
         function validarPasswords() {
   var password = document.getElementById('inputPassword').value;
  var confirmar = document.getElementById('inputConfirmar').value;
@@ -143,7 +133,6 @@
         document.getElementById('inputPassword')?.addEventListener('input', validarPasswords);
       document.getElementById('inputConfirmar')?.addEventListener('input', validarPasswords);
 
-   // Validar formulario antes de enviar
         document.getElementById('formUsuario')?.addEventListener('submit', function(e) {
        if (!validarPasswords()) {
      e.preventDefault();
@@ -151,7 +140,6 @@
    }
  });
 
-        // Validar formato del nombre de usuario
         document.querySelector('input[name="nombre"]')?.addEventListener('input', function() {
    var regex = /^[a-zA-Z0-9._-]+$/;
         if (this.value && !regex.test(this.value)) {

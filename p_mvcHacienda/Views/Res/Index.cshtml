@@ -7,7 +7,6 @@
 }
 
 <div class="container mt-4">
- <!-- Encabezado -->
  <div class="aw-page-header mb-4 d-flex justify-content-between align-items-center">
  <div>
  <h1 class="display-6 fw-bold mb-1" style="color: var(--aw-text);">
@@ -21,7 +20,6 @@
  </a>
  </div>
 
- <!-- Mensaje de éxito/error -->
  @if (TempData["Mensaje"] != null)
  {
  <div class="alert alert-@TempData["TipoMensaje"] alert-dismissible fade show" role="alert">
@@ -30,7 +28,6 @@
  </div>
  }
 
- <!-- Tarjetas de estadísticas -->
  @if (estadisticas != null)
  {
  <div class="row g-3 mb-4">
@@ -42,7 +39,6 @@
  </div>
  }
 
- <!-- Tabla de reses -->
  @if (Model != null && Model.Any())
  {
  <div class="aw-card mt-3 aw-reveal" style="transition-delay: .5s;">
@@ -111,7 +107,6 @@
  }
 </div>
 
-<!-- Modal para alimentar res -->
 <div class="modal fade" id="alimentarModal" tabindex="-1">
  <div class="modal-dialog modal-dialog-centered">
      <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
@@ -166,7 +161,6 @@
     </div>
 </div>
 
-<!-- Modal para vender res -->
 <div class="modal fade" id="ventaModal" tabindex="-1">
  <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
@@ -220,12 +214,10 @@
 
 @section Scripts {
     <script>
-        // Auto-cerrar alertas después de 15 segundos
    setTimeout(function() {
      $('.alert-dismissible').alert('close');
         }, 15000);
 
-        // Configurar modal de alimentación
         var alimentarModal = document.getElementById('alimentarModal');
 alimentarModal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
@@ -237,7 +229,6 @@ document.getElementById('alimentarNombreRes').value = res;
          document.getElementById('alimentarResDisplay').textContent = res + ' (Potrero: ' + potrero + ')';
         });
 
-        // Configurar modal de venta
         var ventaModal = document.getElementById('ventaModal');
         ventaModal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget;

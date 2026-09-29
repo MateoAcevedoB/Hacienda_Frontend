@@ -6,20 +6,6 @@ using System.Linq;
 
 namespace Bib_Hacienda.Aplicacion
 {
-    // SRP (H-01/H-03): agrupa las consultas que en el AS-IS estaban
-    // duplicadas entre PotreroService y ResService (ambas envolvían
-    // Hacienda/Persistencia con el mismo patrón). Como Res solo existe
-    // dentro de un Potrero, sus consultas quedan aquí: crear un
-    // ServicioReses aparte sería una interfaz sin responsabilidad propia.
-    //
-    // INCONSISTENCIA REGISTRADA: Potrero (Bloque 1) exige recibir
-    // PublisherPotreroMitad/PublisherPotreroLleno por constructor, pero el
-    // UML no le da a ServicioPotreros ninguna dependencia declarada hacia
-    // esos Publisher* (solo repositorioPotreros y registroFabricas). Sin
-    // inventar una interfaz o parámetro de constructor ausente del UML,
-    // CrearPotrero instancia esos dos Publisher* directamente con "new"
-    // (son clases sin dependencias propias, igual que hacía el AS-IS dentro
-    // de Potrero antes de la inyección introducida en el Bloque 1).
     public class ServicioPotreros
     {
         private IRepositorioPotreros repositorioPotreros;
@@ -31,7 +17,6 @@ namespace Bib_Hacienda.Aplicacion
             this.registroFabricas = registroFabricas;
         }
 
-        // Misma validación/mensaje que PotreroService.CrearPotrero + Hacienda.crear_potrero del AS-IS.
         public ResultadoOperacion CrearPotrero(string identificacion, string tipo_potrero)
         {
             try
@@ -57,8 +42,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // Misma lógica que Hacienda.buscar_potrero del AS-IS (coincidencia parcial,
-        // exige exactamente un resultado).
         public Potrero BuscarPotrero(string nombre)
         {
             try
@@ -90,10 +73,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // SRP (H-07/H-15): la res ya no se construye con un switch aquí ni en
-        // Potrero; se obtiene la fábrica adecuada según Tipo_potrero y se
-        // valida su edad con el método polimórfico Res.EsEdadValida (LSP,
-        // H-08) antes de intentar añadirla.
         public ResultadoOperacion AnadirResAPotrero(string id_potrero, string nombre, ushort edad, uint peso)
         {
             try
@@ -116,12 +95,6 @@ namespace Bib_Hacienda.Aplicacion
                 IFabricaRes fabrica = registroFabricas.ObtenerFabrica(potrero.Tipo_potrero);
                 Res res = fabrica.Crear(nombre, peso, edad);
 
-                // LSP (H-08): la res ya no lanza excepción al construirse con una
-                // edad fuera de rango; se consulta explícitamente aquí. El
-                // mensaje deja de ser específico por subtipo (el AS-IS decía
-                // "El ternero/cebon/novillo excedió la edad maxima" dentro del
-                // setter de Edad) porque EsEdadValida solo expone un booleano;
-                // ver inconsistencias.
                 if (!res.EsEdadValida(edad))
                 {
                     return ResultadoOperacion.Fallo($"La edad {edad} no es válida para el tipo de res del potrero '{id_potrero}'.");
@@ -188,8 +161,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // Fusiona las estadísticas que en el AS-IS calculaban por separado
-        // PotreroService.ObtenerEstadisticas y ResService.ObtenerEstadisticas.
         public Dictionary<string, object> ObtenerEstadisticas()
         {
             var potreros = repositorioPotreros.ObtenerTodos();

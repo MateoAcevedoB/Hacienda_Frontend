@@ -5,13 +5,6 @@ using System.Collections.Generic;
 
 namespace Bib_Hacienda.Aplicacion
 {
-    // SC-3 ("Además de las vacunas, se va a requerir tener la historia
-    // clínica de cada res en un futuro"): agrega la posibilidad de manejar
-    // la historia clínica de cada Res, siguiendo el mismo estilo que
-    // ServicioVacunacion: valida que la res exista dentro del potrero
-    // indicado (IRepositorioPotreros + Potrero.BuscarRes) antes de
-    // registrar el evento, y delega la persistencia en
-    // IRepositorioHistoriaClinica (DIP).
     public class ServicioHistoriaClinica : IHistoriaClinica
     {
         private IRepositorioPotreros repositorioPotreros;

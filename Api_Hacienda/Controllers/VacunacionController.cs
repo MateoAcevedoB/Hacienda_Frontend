@@ -27,10 +27,6 @@ namespace Api_Hacienda.Controllers
             this.servicioVacunacion = servicioVacunacion;
         }
 
-        // ------------------------------------------------------------
-        // POST /api/vacunacion/aplicar
-        // ------------------------------------------------------------
-        //
         
         [HttpPost("aplicar")]
         public ActionResult<ResultadoOperacion> Aplicar([FromBody] AplicarVacunaRequest request)

@@ -5,31 +5,6 @@ using Bib_Hacienda.Dominio.Eventos;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // Conserva el formato de Ventas.txt del AS-IS
-    // (PersistenciaService.GuardarVentas / CargarVentas):
-    // "PotreroId|Fecha(yyyy-MM-dd)|NombreRes|PesoRes|EdadRes|TipoRes|Monto".
-    //
-    // Diferencia de tipos frente al AS-IS: Venta.Res (Res) pasó a ser
-    // Venta.Activo (IActivoVendible), para permitir a futuro productos
-    // vendibles que no sean Res (SC-1, fuera de este bloque). Hoy la única
-    // implementación de IActivoVendible es Res, así que este serializador
-    // solo sabe volcar a texto el caso en que Activo sea una Res; si en un
-    // futuro bloque aparece otro IActivoVendible, este serializador tendría
-    // que revisarse (o Venta necesitaría su propio serializador por tipo de
-    // activo). No se maneja aquí para no inventar un formato de archivo que
-    // el UML de este bloque no define.
-    //
-    // Nota de diseño (SRP, H-11), igual que en SerializadorRes: la línea de
-    // Ventas.txt combina Potrero + Res + Venta. Serializar SÍ puede volcar
-    // todo porque recibe el grafo completo (venta.Potrero, venta.Activo).
-    // Deserializar, en cambio, solo recibe la línea de texto: no tiene forma
-    // de recuperar la instancia real de Potrero (eso vive en
-    // RepositorioPotrerosTexto, fuera de este bloque). Por eso, igual que
-    // hacía PersistenciaService.CargarVentas en el AS-IS cuando el potrero
-    // de la venta no existía todavía en la lista cargada, aquí se construye
-    // un Potrero "cascarón" con la misma Identificacion y Tipo_potrero vacío;
-    // se espera que el repositorio (Bloque 3B) lo reemplace por la instancia
-    // real cuando corresponda.
     public class SerializadorVenta : ISerializador<Venta>
     {
         public string Serializar(Venta entidad)

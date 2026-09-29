@@ -25,10 +25,6 @@ namespace Bib_Hacienda.Infraestructura
         {
             try
             {
-                // ResId == null: ver comentario de clase. AsNoTracking:
-                // ObtenerVacunasDisponibles/ObtenerEstadisticas/crear_vacuna
-                // (comprobación de lote duplicado) solo leen, nunca vuelven a
-                // guardar el resultado de esta consulta.
                 return contexto.Vacunas
                     .AsNoTracking()
                     .Where(v => EF.Property<int?>(v, "ResId") == null)
@@ -47,16 +43,17 @@ namespace Bib_Hacienda.Infraestructura
                 throw new ArgumentNullException(nameof(vacuna));
             }
 
-            // Misma validación explícita que RepositorioVacunasTexto.Agregar,
-            // con el mismo mensaje de error.
             if (!validadorVacuna.EsValido(vacuna))
             {
                 throw new Exception("Error de validación en vacuna");
             }
 
-            // La FK sombra "ResId" de una vacuna nueva queda sin fijar (null),
-            // que es exactamente el estado "disponible en inventario" (ver
-            // comentario de clase); no hace falta fijarla explícitamente.
+            if (contexto.Vacunas.Any(v => v.Nombre == vacuna.Nombre && v.Lote == vacuna.Lote))
+            {
+                throw new InvalidOperationException(
+                    $"Ya existe una vacuna con el nombre '{vacuna.Nombre}' y el lote '{vacuna.Lote}'.");
+            }
+
             contexto.Vacunas.Add(vacuna);
             contexto.SaveChanges();
         }

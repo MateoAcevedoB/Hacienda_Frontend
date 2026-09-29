@@ -13,7 +13,6 @@ namespace p_mvcHacienda.Controllers
             _servicioVentas = servicioVentas;
         }
 
-        // GET: VentaController
         public ActionResult Index()
         {
             var ventas = _servicioVentas.ObtenerTodasLasVentas();
@@ -24,31 +23,26 @@ namespace p_mvcHacienda.Controllers
             return View(ventas);
         }
 
-        // GET: VentaController/Details/5
         public ActionResult Details(int id)
         {
             return View();
         }
 
-        // GET: VentaController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // GET: VentaController/Edit/5
         public ActionResult Edit(int id)
         {
             return View();
         }
 
-        // GET: VentaController/Delete/5
         public ActionResult Delete(int id)
         {
             return View();
         }
 
-        // POST: VentaController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(IFormCollection collection)
@@ -63,7 +57,6 @@ namespace p_mvcHacienda.Controllers
             }
         }
 
-        // POST: VentaController/Edit/5
         public ActionResult Edit(int id, IFormCollection collection)
         {
             try
@@ -76,7 +69,6 @@ namespace p_mvcHacienda.Controllers
             }
         }
 
-        // POST: VentaController/Delete/5
         public ActionResult Delete(int id, IFormCollection collection)
         {
             try

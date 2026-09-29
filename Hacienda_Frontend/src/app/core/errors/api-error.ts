@@ -9,7 +9,6 @@ const MENSAJE_404 = 'El recurso solicitado no existe.';
 const MENSAJE_500 = 'El servidor tuvo un problema al procesar la solicitud. Inténtalo de nuevo más tarde.';
 const MENSAJE_GENERICO = 'Ocurrió un error inesperado. Inténtalo de nuevo.';
 
-/** Error ya interpretado: el mensaje es apto para mostrarse al usuario. */
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -20,7 +19,6 @@ export class ApiError extends Error {
   }
 }
 
-/** Devuelve el mensaje para el usuario a partir de cualquier error capturado. */
 export function mensajeDeError(error: unknown): string {
   return error instanceof ApiError ? error.message : MENSAJE_GENERICO;
 }
@@ -31,14 +29,6 @@ function esCuerpo(valor: unknown): valor is Cuerpo {
   return typeof valor === 'object' && valor !== null && !Array.isArray(valor);
 }
 
-/**
- * Formatos reales de error de Api_Hacienda:
- *  - { mensaje }                          (BadRequest/NotFound/Unauthorized de los Controllers)
- *  - { exito, mensaje }                   (ResultadoOperacion en fallos de negocio)
- *  - { errors: { Campo: [msg] }, ... }    (ValidationProblemDetails de [ApiController])
- *  - ProblemDetails                       (500 del manejador global)
- *  - cuerpo vacío                         (401/403 del middleware JWT)
- */
 function mensajeDelBackend(cuerpo: unknown): string | null {
   if (!esCuerpo(cuerpo)) {
     return null;
@@ -62,7 +52,6 @@ function mensajeDelBackend(cuerpo: unknown): string | null {
   return null;
 }
 
-/** Traduce un HttpErrorResponse a un ApiError con mensaje amigable. */
 export function mapearError(error: HttpErrorResponse): ApiError {
   const delBackend = mensajeDelBackend(error.error);
 

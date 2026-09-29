@@ -8,9 +8,6 @@ using Bib_Hacienda.Dominio.Validacion;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // Misma lógica que PersistenciaService.GuardarVentas/CargarVentas del
-    // AS-IS, con la validación explícita antes de persistir (H-11/H-12, ver
-    // nota de RepositorioPotrerosTexto).
     public class RepositorioVentasTexto : IRepositorioVentas
     {
         private const string ArchivoVentas = "Ventas.txt";

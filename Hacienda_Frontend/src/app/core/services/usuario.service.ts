@@ -8,7 +8,6 @@ import { CrearUsuarioRequest, UsuarioResponse } from '../models/usuario.models';
 
 const URL_USUARIOS = `${environment.apiUrl}/api/usuarios`;
 
-/** Solo el rol admin puede usar estos endpoints (UsuariosController). */
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
   private readonly http = inject(HttpClient);

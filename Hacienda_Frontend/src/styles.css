@@ -1,4 +1,3 @@
-/* Tema Hacienda TOBE: evolución de la paleta y componentes de HaciendaSoft (p_mvcHacienda/wwwroot/css/site.css). */
 :root {
   --aw-green-light: #A9ECA2;
   --aw-green: #4C9A4A;
@@ -109,7 +108,6 @@ h1, h2, h3 { font-family: 'Nunito Sans', 'Inter', system-ui, sans-serif; }
 .aw-estado { display: flex; align-items: center; gap: .6rem; margin: 0; color: var(--aw-muted); }
 .aw-tabla-scroll { overflow-x: auto; }
 
-/* ---------- Utilidades compartidas (Fase 2) ---------- */
 .aw-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .aw-stat { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: .2rem; }
 .aw-stat-label { color: var(--aw-muted); font-size: .85rem; font-weight: 600; }

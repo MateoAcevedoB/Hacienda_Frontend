@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 
 namespace Bib_Hacienda.Dominio
 {
-    // OCP (SC-1): referencia IActivoVendible en vez de Res concreta, para
-    // que una futura venta de producto derivado no exija modificar Venta.
-    // Asociación dirigida (no agregación): Venta referencia, no crea ni
-    // posee Potrero/activo.
     public class Venta
     {
         private Potrero potrero;
@@ -30,7 +26,6 @@ namespace Bib_Hacienda.Dominio
         {
         }
 
-        //Accesores
         public Potrero Potrero { get => potrero; set => potrero = value; }
         public DateTime Fecha { get => fecha; set => fecha = value; }
         public IActivoVendible Activo { get => activo; set => activo = value; }

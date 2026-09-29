@@ -21,10 +21,6 @@ namespace Api_Hacienda.Controllers
             this.generadorTokenJwt = generadorTokenJwt;
         }
 
-        // ------------------------------------------------------------
-        // POST /api/auth/login  (sin [Authorize]: es el único punto de
-        // entrada para obtener el token).
-        // ------------------------------------------------------------
         [HttpPost("login")]
         [AllowAnonymous]
         public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
@@ -46,24 +42,13 @@ namespace Api_Hacienda.Controllers
             Usuario usuario;
             try
             {
-                // ValidarCredenciales ya confirmó que el usuario existe;
-                // buscar_usuario reutiliza la misma fuente (IRepositorioUsuarios)
-                // para obtener el objeto Usuario y armar los claims del JWT.
                 usuario = servicioAutenticacion.buscar_usuario(request.Nombre);
             }
             catch (Exception)
             {
-                // Caso extremadamente improbable (usuario borrado entre
-                // ValidarCredenciales y buscar_usuario); se trata como
-                // credenciales inválidas en vez de exponer un 500.
                 return Unauthorized(new { mensaje = "Nombre de usuario o contraseña incorrectos." });
             }
 
-            // "rol": ver comentario en IGeneradorTokenJwt — el proyecto no
-            // modela un Rol separado del Nombre de usuario (admin/empleado/
-            // visitante SON, a la vez, nombres de usuario y roles, igual que
-            // en ProveedorPermisosPorRol.TienePermiso). No se inventa un
-            // campo Rol nuevo en Usuario.
             string rol = usuario.Nombre;
 
             TokenJwtGenerado tokenGenerado = generadorTokenJwt.GenerarToken(usuario, rol);

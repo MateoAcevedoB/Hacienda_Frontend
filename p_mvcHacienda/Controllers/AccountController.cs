@@ -32,10 +32,6 @@ namespace p_mvcHacienda.Controllers
 
                 if (credencialesValidas)
                 {
-                    // La generación del ClaimsPrincipal permanece en AccountController porque
-                    // ClaimsIdentity/ClaimTypes son tipos de ASP.NET Core, no del dominio.
-                    // ServicioAutenticacion solo valida (bool); el usuario se recupera aparte
-                    // con buscar_usuario, igual que hacía UsuarioService.ValidateUserAsync.
                     var usuario = _servicioAutenticacion.buscar_usuario(model.Username);
 
                     var claims = new List<Claim>

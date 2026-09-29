@@ -7,14 +7,11 @@ namespace p_mvcHacienda.Controllers
 {
     public class ResController : Controller
     {
-        // Atributos
         private readonly ServicioPotreros _servicioPotreros;
         private readonly ServicioAlimentacion _servicioAlimentacion;
         private readonly ServicioVentas _servicioVentas;
-        // SC-3: servicio de aplicación para historia clínica.
         private readonly ServicioHistoriaClinica _servicioHistoriaClinica;
 
-        //Constructor con inyección de dependencias
         public ResController(ServicioPotreros servicioPotreros, ServicioAlimentacion servicioAlimentacion, ServicioVentas servicioVentas, ServicioHistoriaClinica servicioHistoriaClinica)
         {
             _servicioPotreros = servicioPotreros;
@@ -23,7 +20,6 @@ namespace p_mvcHacienda.Controllers
             _servicioHistoriaClinica = servicioHistoriaClinica;
         }
 
-        // GET: Res/Index - Listar todas las reses
         [HttpGet]
         public ActionResult Index()
         {
@@ -35,7 +31,6 @@ namespace p_mvcHacienda.Controllers
             return View(resesConPotrero);
         }
 
-        // Ver vacunas aplicadas por res
         [HttpGet]
         public ActionResult DetalleVacunas(string potreroId, string nombreRes)
         {
@@ -61,7 +56,6 @@ namespace p_mvcHacienda.Controllers
             }
         }
 
-        // SC-3: Ver / registrar historia clínica de una res
         [HttpGet]
         public ActionResult HistoriaClinica(string potreroId, string nombreRes)
         {
@@ -89,7 +83,6 @@ namespace p_mvcHacienda.Controllers
             }
         }
 
-        // SC-3: POST Res/RegistrarEventoClinico - Registrar un nuevo evento clínico
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult RegistrarEventoClinico(string potreroId, string nombreRes, string fecha, string tipoEvento, string descripcion)
@@ -117,20 +110,17 @@ namespace p_mvcHacienda.Controllers
             return RedirectToAction(nameof(HistoriaClinica), new { potreroId, nombreRes });
         }
 
-        // GET: Res/Create - Mostrar formulario de creación
         public ActionResult Create()
         {
             ViewBag.Potreros = _servicioPotreros.ObtenerTodosLosPotreros();
             return View();
         }
 
-        // POST: Res/Create - Procesar creación de res
         [HttpPost]
         public ActionResult Create(string potreroId, string nombre, ushort edad, uint peso)
         {
             try
             {
-                // Validar entrada
                 if (string.IsNullOrWhiteSpace(potreroId) || string.IsNullOrWhiteSpace(nombre))
                 {
                     ViewBag.Mensaje = "Todos los campos son requeridos";
@@ -139,7 +129,6 @@ namespace p_mvcHacienda.Controllers
                     return View();
                 }
 
-                // Usar ServicioPotreros para agregar la res (persiste internamente vía repositorio)
                 var resultado = _servicioPotreros.AnadirResAPotrero(potreroId, nombre, edad, peso);
 
                 if (!resultado.Exito)
@@ -164,7 +153,6 @@ namespace p_mvcHacienda.Controllers
             return View();
         }
 
-        // POST: Res/Alimentar - Alimentar una res
         public ActionResult Alimentar(string potreroId, string nombreRes, uint cantidadAlimento)
         {
             try
@@ -183,12 +171,10 @@ namespace p_mvcHacienda.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Res/Vender - Vender una res (validando overflow de monto)
         public ActionResult Vender(string potreroId, string nombreRes, string monto)
         {
             try
             {
-                // Validar y convertir monto de forma segura
                 if (string.IsNullOrWhiteSpace(monto))
                 {
                     TempData["Mensaje"] = "El monto es requerido";
@@ -196,7 +182,6 @@ namespace p_mvcHacienda.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Intentar convertir a decimal primero
                 if (!decimal.TryParse(monto, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out var montoDec))
                 {
                     TempData["Mensaje"] = "Monto inválido";
@@ -204,7 +189,6 @@ namespace p_mvcHacienda.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Validar límites de uint
                 if (montoDec < 0 || montoDec > uint.MaxValue)
                 {
                     TempData["Mensaje"] = $"El monto excede el máximo permitido ({uint.MaxValue})";
@@ -214,7 +198,6 @@ namespace p_mvcHacienda.Controllers
 
                 var montoUint = (uint)montoDec;
 
-                // Vende la res y envía el mensaje (persiste internamente vía repositorio)
                 var resultado = _servicioVentas.vender_res(potreroId, nombreRes, montoUint);
 
                 TempData["Mensaje"] = resultado.Mensaje;

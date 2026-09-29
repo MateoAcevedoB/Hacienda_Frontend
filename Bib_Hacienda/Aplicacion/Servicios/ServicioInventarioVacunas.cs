@@ -20,7 +20,6 @@ namespace Bib_Hacienda.Aplicacion
             this.fabricaViva = fabricaViva;
         }
 
-        // Misma lógica que Hacienda.crear_vacuna (bacteriana individual) del AS-IS.
         public ResultadoOperacion crear_vacuna(string nombre, string lote, DateTime fecha_vencimiento, DateTime fecha_aplicacion, uint periodo_aplicacion)
         {
             try
@@ -48,7 +47,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // Misma lógica que Hacienda.crear_vacuna (viva individual) del AS-IS.
         public ResultadoOperacion crear_vacuna(string nombre, string lote, DateTime fecha_vencimiento, DateTime fecha_aplicacion, enum_l_atenuaciones grado_atenuacion)
         {
             try
@@ -128,7 +126,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // Misma lógica que Hacienda.crear_vacuna (lote vivo) del AS-IS.
         public ResultadoOperacion crear_vacuna(string nombre, string lote_base, DateTime fecha_vencimiento, DateTime fecha_aplicacion, enum_l_atenuaciones grado_atenuacion, uint cantidad)
         {
             try
@@ -180,11 +177,6 @@ namespace Bib_Hacienda.Aplicacion
             }
         }
 
-        // H-17 (SRP): método fachada que decide bacteriana-vs-viva UNA sola vez
-        // y delega en las sobrecargas de crear_vacuna(), igual que hacía
-        // VacunaService.CrearVacuna en el AS-IS (que a su vez llamaba a
-        // Hacienda.crear_vacuna). Reemplaza el if/else duplicado en
-        // VacunaController y en VacunaService.
         public ResultadoOperacion CrearVacuna(string nombre, string lote, DateTime fecha_vencimiento, DateTime fecha_aplicacion, uint? periodoAplicacion, enum_l_atenuaciones? atenuacion)
         {
             if (periodoAplicacion.HasValue && !atenuacion.HasValue)

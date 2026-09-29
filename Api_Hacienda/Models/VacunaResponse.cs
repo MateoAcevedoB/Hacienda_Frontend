@@ -11,8 +11,6 @@ namespace Api_Hacienda.Models
         public DateTime FechaAplicacion { get; set; }
         public string Tipo { get; set; } = string.Empty;
 
-        // Solo informado cuando Tipo == "Bacteriana" (ver comentario de
-        // clase: Viva no expone su grado de atenuación públicamente).
         public uint? PeriodoAplicacion { get; set; }
     }
 }

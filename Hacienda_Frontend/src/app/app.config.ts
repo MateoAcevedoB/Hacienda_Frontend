@@ -10,9 +10,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    // Las respuestas de error recorren la lista al revés: primero authInterceptor
-    // (ve el HttpErrorResponse original y cierra sesión en un 401) y después
-    // errorInterceptor (lo convierte en ApiError con mensaje amigable).
     provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
   ],
 };

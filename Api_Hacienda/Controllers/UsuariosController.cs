@@ -19,9 +19,6 @@ namespace Api_Hacienda.Controllers
             this.servicioAutenticacion = servicioAutenticacion;
         }
 
-        // ------------------------------------------------------------
-        // GET /api/usuarios
-        // ------------------------------------------------------------
         [HttpGet]
         public ActionResult<List<UsuarioResponse>> ObtenerTodos()
         {
@@ -30,9 +27,6 @@ namespace Api_Hacienda.Controllers
             return Ok(respuesta);
         }
 
-        // ------------------------------------------------------------
-        // POST /api/usuarios
-        // ------------------------------------------------------------
         [HttpPost]
         public ActionResult<ResultadoOperacion> Crear([FromBody] CrearUsuarioRequest request)
         {

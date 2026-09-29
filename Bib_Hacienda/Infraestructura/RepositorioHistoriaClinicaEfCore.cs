@@ -9,23 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // FASE 2B: implementación EF Core / PostgreSQL de IRepositorioHistoriaClinica.
-    //
-    // Comportamiento equivalente al de RepositorioHistoriaClinicaTexto: las
-    // mismas 2 operaciones del contrato (ObtenerPorRes, Agregar), con la
-    // misma validación explícita (IValidadorEventoClinico) antes de
-    // persistir. Igual que el repositorio de texto, no existe operación de
-    // "Remover" (SC-3 solo pide asociar, registrar y consultar).
-    //
-    // PotreroId + NombreRes: EventoClinico no tiene, en el dominio real, una
-    // referencia de objeto a Res ni a Potrero (ver comentario de
-    // EventoClinico.cs), y HaciendaDbContext.ConfigurarEventosClinicos
-    // mapea PotreroId/NombreRes como columnas de texto simples, SIN ninguna
-    // FK/navegación hacia Potrero o Res (solo un índice no-único sobre
-    // ambas). Este repositorio respeta exactamente ese modelo: sigue
-    // filtrando por la pareja de strings PotreroId+NombreRes, igual que
-    // ObtenerPorRes en el repositorio de texto; no se inventa ninguna
-    // relación nueva para "facilitar" la consulta.
     public class RepositorioHistoriaClinicaEfCore : IRepositorioHistoriaClinica
     {
         private readonly HaciendaDbContext contexto;
@@ -41,11 +24,6 @@ namespace Bib_Hacienda.Infraestructura
         {
             try
             {
-                // Comparación case-insensitive y orden cronológico: mismo
-                // comportamiento que RepositorioHistoriaClinicaTexto.ObtenerPorRes
-                // (StringComparison.OrdinalIgnoreCase + OrderBy(Fecha)).
-                // ToLower() en ambos lados se traduce a SQL, sin depender de
-                // una extensión específica de Npgsql.
                 string potreroIdNormalizado = potreroId?.ToLower();
                 string nombreResNormalizado = nombreRes?.ToLower();
 
@@ -69,8 +47,6 @@ namespace Bib_Hacienda.Infraestructura
                 throw new ArgumentNullException(nameof(evento));
             }
 
-            // Misma validación explícita que RepositorioHistoriaClinicaTexto.Agregar,
-            // con el mismo mensaje de error.
             if (!validadorEventoClinico.EsValido(evento))
             {
                 throw new Exception("Error de validación en evento clínico");

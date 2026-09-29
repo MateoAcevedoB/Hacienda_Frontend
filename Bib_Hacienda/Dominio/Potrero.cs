@@ -11,16 +11,13 @@ namespace Bib_Hacienda.Dominio
     
     public class Potrero
     {
-        //Atributos
         private string identificacion;
         private List<Res> l_reses;
         private string tipo_potrero;
 
-        //Eventos (inyectados)
         private PublisherPotreroMitad publisher_potrero_mitad;
         private PublisherPotreroLleno publisher_potrero_lleno;
 
-        //Constructor
         public Potrero(string identificacion, string tipo_potrero, PublisherPotreroMitad potreroMitad, PublisherPotreroLleno potreroLleno)
         {
             this.Identificacion = identificacion;
@@ -38,20 +35,15 @@ namespace Bib_Hacienda.Dominio
     this.publisher_potrero_lleno = new PublisherPotreroLleno();
         }
 
-        //Accesores
         public string Identificacion { get => identificacion; set => identificacion = value; }
         public List<Res> L_reses { get => l_reses; set => l_reses = value; }
         public string Tipo_potrero { get => tipo_potrero; set => tipo_potrero = value; }
 
-        //Indica si el potrero tiene capacidad para una res más
         public bool TieneCapacidad()
         {
             return l_reses.Count() < ReglaPotrero.max_reses_potrero;
         }
 
-        //Añade una res ya construida al potrero, si hay capacidad.
-        //H-14 (SRP): retorna ResultadoOperacion en vez de string; el texto
-        //del mensaje de éxito y de potrero lleno es el MISMO que en el AS-IS.
         public ResultadoOperacion AgregarRes(Res res)
         {
             try
@@ -68,12 +60,10 @@ namespace Bib_Hacienda.Dominio
 
                 l_reses.Add(res);
 
-                //Cuenta las reses actuales en el potrero
                 ushort cantidad_reses = (ushort)L_reses.Count();
 
                 string mensajes_eventos = "";
 
-                //Suscribirse a los eventos ANTES de dispararlos
                 publisher_potrero_mitad.evt_potrero_mitad += mensaje =>
                 {
                     if (!string.IsNullOrEmpty(mensaje))
@@ -86,11 +76,9 @@ namespace Bib_Hacienda.Dominio
                         mensajes_eventos += mensaje + "\n";
                 };
 
-                //AHORA SÍ disparar los eventos (después de suscribirnos)
                 publisher_potrero_mitad.Informar_Potrero_Mitad(cantidad_reses, this);
                 publisher_potrero_lleno.Informar_Potrero_Lleno(cantidad_reses, this);
 
-                //Construir mensaje de retorno
                 string mensaje_final = $"La res {res.Nombre} ha sido añadida al potrero {this.identificacion} con exito.";
                 if (!string.IsNullOrEmpty(mensajes_eventos))
                 {
@@ -110,30 +98,25 @@ namespace Bib_Hacienda.Dominio
         {
             try
             {
-                // Validar nombre
                 if (string.IsNullOrWhiteSpace(nombre))
                 {
                     throw new ArgumentException("El nombre de búsqueda no puede estar vacío.");
                 }
 
-                // Buscar la res que contengan el texto (ignorando mayúsculas/minúsculas)
                 var res_encontrada = l_reses
                     .Where(p => p.Nombre.IndexOf(nombre, StringComparison.OrdinalIgnoreCase) >= 0)
                     .ToList();
 
-                // Si no hay resultados
                 if (res_encontrada.Count == 0)
                 {
                     throw new Exception($"No se encontró ningúna vaca con el nombre o coincidencia '{nombre}'.");
                 }
 
-                // Si hay más de un resultado, mostrar opciones
                 if (res_encontrada.Count > 1)
                 {
                     throw new Exception($" se encontró mas de una res con el nombre o coincidencia '{nombre}'.");
                 }
 
-                //  devolver res
                 return res_encontrada.First();
             }
             catch (Exception er)

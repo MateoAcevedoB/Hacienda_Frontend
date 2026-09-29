@@ -7,16 +7,12 @@ using System.Threading.Tasks;
 
 namespace Bib_Hacienda.Dominio
 {
-    public class Novillo : Res //Hereda de Res
+    public class Novillo : Res
     {
-        //Constructor
         public Novillo(string nombre, uint peso, ushort edad) : base(nombre, peso, edad)
         {
         }
 
-        // OCP (H-10): reemplaza al antiguo override de Edad, que lanzaba
-        // Exception si el valor no superaba edad_max_cebon. Misma regla de
-        // negocio (value > edad_max_cebon), expuesta ahora como consulta.
         public override bool EsEdadValida(ushort edad)
         {
             return edad > ReglaRes.edad_max_cebon;

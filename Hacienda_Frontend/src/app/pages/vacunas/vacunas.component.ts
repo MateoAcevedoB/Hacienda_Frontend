@@ -22,14 +22,12 @@ import { PermisosService } from '../../core/services/permisos.service';
 import { PotreroService } from '../../core/services/potrero.service';
 import { VacunaService } from '../../core/services/vacuna.service';
 
-/** La fecha de vencimiento debe ser posterior a la de aplicación (regla del backend). */
 export function vencimientoPosterior(grupo: AbstractControl): ValidationErrors | null {
   const aplicacion = grupo.get('fechaAplicacion')?.value as string;
   const vencimiento = grupo.get('fechaVencimiento')?.value as string;
   return aplicacion && vencimiento && vencimiento <= aplicacion ? { vencimientoAnterior: true } : null;
 }
 
-/** Vacuna vencida = fecha de vencimiento anterior a hoy. */
 export function estaVencida(fechaVencimiento: string, ahora: Date = new Date()): boolean {
   return Date.parse(fechaVencimiento) < ahora.getTime();
 }
@@ -140,7 +138,6 @@ export class VacunasComponent {
       lote: v.lote.trim(),
       fechaAplicacion: v.fechaAplicacion,
       fechaVencimiento: v.fechaVencimiento,
-      // Exactamente uno de los dos, como exige el backend.
       ...(v.tipo === 'bacteriana'
         ? { periodoAplicacion: Number(v.periodoAplicacion) }
         : { atenuacionGrado: Number(v.atenuacionGrado) }),

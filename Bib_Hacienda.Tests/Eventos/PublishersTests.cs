@@ -5,12 +5,6 @@ using Xunit;
 
 namespace Bib_Hacienda.Tests.Eventos
 {
-    // FASE 4C-2: unit tests de los Publisher* (Bib_Hacienda.Dominio.Eventos),
-    // basados en el código REAL de cada Publisher*.cs. Cobertura previa baja
-    // sobre todo en PublisherPotreroLleno (29.4%) y PublisherPotreroMitad
-    // (33.3%): los tests de ServicioPotreros/Potrero casi nunca llegaban a
-    // cantidad_reses == mitad/máximo. Cubre: rama con evento disparado
-    // (con y sin suscriptor), rama sin disparo, y validaciones de null.
 
     public class PublisherPotreroLlenoTests
     {
@@ -109,7 +103,7 @@ namespace Bib_Hacienda.Tests.Eventos
         public void InformarPesoMin_PesoDebajoDelMinimo_DebeDispararElEvento()
         {
             var publisher = new PublisherPesoMin();
-            var res = new Ternero("Vaca1", 50, 5); // peso_min_ternero = 150
+            var res = new Ternero("Vaca1", 50, 5);
             string? mensajeRecibido = null;
             publisher.evt_peso_min += m => mensajeRecibido = m;
 
@@ -150,7 +144,7 @@ namespace Bib_Hacienda.Tests.Eventos
         public void InformarPesoVenta_PesoAptoParaVenta_DebeDispararElEvento()
         {
             var publisher = new PublisherPesoVenta();
-            var res = new Ternero("Vaca1", 300, 5); // peso_recom_venta_ternero = 250
+            var res = new Ternero("Vaca1", 300, 5);
             string? mensajeRecibido = null;
             publisher.evt_peso_venta += m => mensajeRecibido = m;
 
@@ -182,10 +176,6 @@ namespace Bib_Hacienda.Tests.Eventos
         [Fact]
         public void InformarVacunaVencida_VacunaNula_DebeLanzarExceptionQueEnvuelveArgumentNullException()
         {
-            // El método captura cualquier excepción interna (incluida la
-            // ArgumentNullException lanzada por el guard-clause) y la relanza
-            // como System.Exception, concatenando el mensaje original en el
-            // texto del mensaje (ver catch en PublisherVacunaVencida.cs).
             var publisher = new PublisherVacunaVencida();
 
             var ex = Assert.Throws<Exception>(() => publisher.Informar_Vacuna_Vencida(null!));
@@ -253,9 +243,6 @@ namespace Bib_Hacienda.Tests.Eventos
         [Fact]
         public void InformarVacunacionCompletada_ResNula_DebeLanzarExceptionQueEnvuelveArgumentNullException()
         {
-            // Igual que en PublisherVacunaVencida: el catch envuelve la
-            // ArgumentNullException del guard-clause en un System.Exception,
-            // concatenando el mensaje original (ver PublisherVacunacionCompletada.cs).
             var publisher = new PublisherVacunacionCompletada();
 
             var ex = Assert.Throws<Exception>(() => publisher.Informar_Vacunacion_Completada(null!, 0, 0));
@@ -268,7 +255,7 @@ namespace Bib_Hacienda.Tests.Eventos
         public void InformarVacunacionCompletada_EsquemaCompleto_DebeRetornarTrueYMensajeCorrespondiente()
         {
             var publisher = new PublisherVacunacionCompletada();
-            var res = new Ternero("Vaca1", 200, 5); // max_bac_ternero=3, max_viv_ternero=1
+            var res = new Ternero("Vaca1", 200, 5);
             string? mensajeRecibido = null;
             publisher.evt_vacunacion_completada += m => mensajeRecibido = m;
 

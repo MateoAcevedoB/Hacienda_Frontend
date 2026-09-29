@@ -27,10 +27,6 @@ function sesionVigente(sesion: Sesion): boolean {
   return Date.parse(sesion.expiresAt) > Date.now();
 }
 
-/**
- * Única clase que conoce el JWT: lo pide al backend, lo guarda, lo entrega
- * al interceptor y lo elimina al cerrar sesión.
- */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -38,7 +34,6 @@ export class AuthService {
 
   private readonly sesion = signal<Sesion | null>(this.leerSesionGuardada());
 
-  /** Nombre y rol del usuario autenticado (null si no hay sesión). */
   readonly usuario = computed<UsuarioActual | null>(() => {
     const actual = this.sesion();
     return actual ? { nombre: actual.nombre, rol: actual.rol } : null;
@@ -50,19 +45,16 @@ export class AuthService {
       .pipe(tap((respuesta) => this.guardarSesion(respuesta)));
   }
 
-  /** Cierre voluntario: limpia la sesión y vuelve al login. */
   logout(): void {
     this.limpiarSesion();
     void this.router.navigate(['/login']);
   }
 
-  /** Cierre forzado por un 401 en un endpoint protegido. */
   sesionInvalida(): void {
     this.limpiarSesion();
     void this.router.navigate(['/login'], { queryParams: { motivo: 'sesion-invalida' } });
   }
 
-  /** true si hay token y todavía no ha vencido (expiresAt). */
   estaAutenticado(): boolean {
     const actual = this.sesion();
     if (actual === null) {
@@ -75,7 +67,6 @@ export class AuthService {
     return true;
   }
 
-  /** Solo para el interceptor HTTP. Los componentes no deben llamarlo. */
   obtenerToken(): string | null {
     return this.estaAutenticado() ? (this.sesion()?.token ?? null) : null;
   }
@@ -91,7 +82,6 @@ export class AuthService {
     try {
       localStorage.setItem(CLAVE_SESION, JSON.stringify(nueva));
     } catch {
-      // Sin almacenamiento disponible: la sesión vive solo hasta recargar.
     }
   }
 
@@ -100,7 +90,6 @@ export class AuthService {
     try {
       localStorage.removeItem(CLAVE_SESION);
     } catch {
-      // Nada que limpiar si el almacenamiento no está disponible.
     }
   }
 
@@ -116,7 +105,6 @@ export class AuthService {
       }
       localStorage.removeItem(CLAVE_SESION);
     } catch {
-      // JSON corrupto o almacenamiento bloqueado: se trata como sin sesión.
     }
     return null;
   }

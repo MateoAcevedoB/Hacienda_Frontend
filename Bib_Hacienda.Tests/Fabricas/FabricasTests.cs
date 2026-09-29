@@ -7,12 +7,6 @@ using static Bib_Hacienda.Dominio.Viva;
 
 namespace Bib_Hacienda.Tests.Fabricas
 {
-    // FASE 4C-2: unit tests de las fábricas concretas (Bib_Hacienda.Aplicacion.Fabricas*),
-    // basados en el código REAL de cada Fabrica*.cs. Cobertura previa: 0%
-    // (ServicioPotreros/ServicioVacunacion siempre mockean IFabricaRes /
-    // IFabricaVacunaBacteriana / IFabricaVacunaViva, nunca se probaba la
-    // implementación concreta). Son lógica de negocio (construyen las
-    // entidades de dominio correctas según el tipo solicitado).
 
     public class FabricaTerneroTests
     {

@@ -17,8 +17,6 @@ namespace Bib_Hacienda.Aplicacion
             this.repositorioVentas = repositorioVentas;
         }
 
-        // Misma lógica que Hacienda.vender_res del AS-IS: crea la Venta,
-        // la agrega al repositorio y remueve la res del potrero.
         public ResultadoOperacion vender_res(string id_potrero, string nombre, uint monto)
         {
             try

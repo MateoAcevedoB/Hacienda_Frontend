@@ -1,11 +1,22 @@
 using Bib_Hacienda.Dominio;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
 
 namespace Bib_Hacienda.Infraestructura.Persistencia
 {
     
     public class HaciendaDbContext : DbContext
     {
+        private static readonly ValueConverter<DateTime, DateTime> ConversorUtc =
+            new(
+                fecha => fecha.Kind == DateTimeKind.Utc
+                    ? fecha
+                    : fecha.Kind == DateTimeKind.Local
+                        ? fecha.ToUniversalTime()
+                        : DateTime.SpecifyKind(fecha, DateTimeKind.Utc),
+                fecha => DateTime.SpecifyKind(fecha, DateTimeKind.Utc));
+
         public HaciendaDbContext(DbContextOptions<HaciendaDbContext> options) : base(options)
         {
         }
@@ -38,9 +49,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
             ConfigurarEventosClinicos(modelBuilder);
         }
 
-        // ------------------------------------------------------------
-        // Potrero
-        // ------------------------------------------------------------
         private static void ConfigurarPotrero(ModelBuilder modelBuilder)
         {
             var potrero = modelBuilder.Entity<Potrero>();
@@ -63,9 +71,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
             
         }
 
-        // ------------------------------------------------------------
-        // Res (TPH: Ternero / Cebon / Novillo)
-        // ------------------------------------------------------------
         private static void ConfigurarReses(ModelBuilder modelBuilder)
         {
             var res = modelBuilder.Entity<Res>();
@@ -99,9 +104,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
                .OnDelete(DeleteBehavior.Cascade);
         }
 
-        // ------------------------------------------------------------
-        // Vacuna (TPH: Bacteriana / Viva)
-        // ------------------------------------------------------------
         private static void ConfigurarVacunas(ModelBuilder modelBuilder)
         {
             var vacuna = modelBuilder.Entity<Vacuna>();
@@ -113,8 +115,12 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
             vacuna.Property(v => v.Nombre).HasMaxLength(200);
             vacuna.Property(v => v.Lote).HasMaxLength(100);
 
-            vacuna.Property(v => v.Fecha_vencimiento).IsRequired();
-            vacuna.Property(v => v.Fecha_aplicacion).IsRequired();
+            vacuna.Property(v => v.Fecha_vencimiento)
+                  .HasConversion(ConversorUtc)
+                  .IsRequired();
+            vacuna.Property(v => v.Fecha_aplicacion)
+                  .HasConversion(ConversorUtc)
+                  .IsRequired();
 
             vacuna.HasDiscriminator<string>("TipoVacuna")
                   .HasValue<Bacteriana>("Bacteriana")
@@ -135,9 +141,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
                 .IsRequired();
         }
 
-        // ------------------------------------------------------------
-        // Venta
-        // ------------------------------------------------------------
         private static void ConfigurarVentas(ModelBuilder modelBuilder)
         {
             var venta = modelBuilder.Entity<Venta>();
@@ -148,9 +151,10 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
             venta.Property<int>("Id").ValueGeneratedOnAdd();
             venta.HasKey("Id");
 
-            venta.Property(v => v.Fecha).IsRequired();
+            venta.Property(v => v.Fecha)
+                 .HasConversion(ConversorUtc)
+                 .IsRequired();
 
-            // Monto (uint) -> long, mismo motivo que Res.Peso.
             venta.Property(v => v.Monto).HasConversion<long>().IsRequired();
 
             
@@ -170,9 +174,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
                  .OnDelete(DeleteBehavior.Restrict);
         }
 
-        // ------------------------------------------------------------
-        // Usuario
-        // ------------------------------------------------------------
         private static void ConfigurarUsuarios(ModelBuilder modelBuilder)
         {
             var usuario = modelBuilder.Entity<Usuario>();
@@ -187,9 +188,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
             usuario.Property(u => u.ContrasenaHash).IsRequired();
         }
 
-        // ------------------------------------------------------------
-        // EventoClinico
-        // ------------------------------------------------------------
         private static void ConfigurarEventosClinicos(ModelBuilder modelBuilder)
         {
             var evento = modelBuilder.Entity<EventoClinico>();
@@ -208,5 +206,6 @@ namespace Bib_Hacienda.Infraestructura.Persistencia
             
             evento.HasIndex(e => new { e.PotreroId, e.NombreRes });
         }
+
     }
 }

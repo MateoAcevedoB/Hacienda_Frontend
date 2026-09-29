@@ -7,15 +7,11 @@ using Bib_Hacienda.Dominio;
 
 namespace Bib_Hacienda.Dominio.Eventos
 {
-    // Conservada íntegramente del AS-IS: no verificaba tipos de Res,
-    // por lo que no tenía el problema OCP de los otros publishers.
     public class PublisherVacunaVencida
     {
-        //Definicion del delegado y el evento (con mensaje)
         public delegate void dele_vacuna_vencida(string mensaje);
         public event dele_vacuna_vencida evt_vacuna_vencida;
 
-        //Metodo para informar si la vacuna está vencida o está por vencer (un mes antes)
         public bool Informar_Vacuna_Vencida(Vacuna vacuna)
         {
             try
@@ -25,12 +21,10 @@ namespace Bib_Hacienda.Dominio.Eventos
                     throw new ArgumentNullException(nameof(vacuna), "La vacuna no puede ser null");
                 }
 
-                //Validar si la vacuna está vencida o vencerá en un mes
                 DateTime fechaAlerta = DateTime.Now.AddMonths(1);
                 bool esta_vencida = vacuna.Fecha_vencimiento <= DateTime.Now;
                 bool alerta_vencimiento = vacuna.Fecha_vencimiento <= fechaAlerta && !esta_vencida;
 
-                // Disparar el evento con el mensaje apropiado
                 if (evt_vacuna_vencida != null)
                 {
                     string mensaje;

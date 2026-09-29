@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace Bib_Hacienda.Interfaces
 {
-    // H-14 (SRP): cambia su tipo de retorno de "string" a ResultadoOperacion.
-    // El texto del mensaje no cambia; solo deja de mezclarse con el control
-    // de flujo (ver ResultadoOperacion).
     public interface ICreacionVacuna
     {
         ResultadoOperacion crear_vacuna(string nombre, string lote, DateTime fecha_vencimiento, DateTime fecha_aplicacion, uint periodo_aplicacion);

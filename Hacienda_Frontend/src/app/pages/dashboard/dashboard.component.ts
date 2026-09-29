@@ -24,7 +24,6 @@ export class DashboardComponent {
   protected readonly usuario = inject(AuthService).usuario;
   protected readonly esAdmin = inject(PermisosService).esAdmin;
 
-  /** null = ese recurso no pudo cargarse (el resto del panel sigue funcionando). */
   protected readonly potreros = signal<PotreroResponse[] | null>(null);
   protected readonly ventas = signal<VentaResponse[] | null>(null);
   protected readonly vacunas = signal<VacunaResponse[] | null>(null);

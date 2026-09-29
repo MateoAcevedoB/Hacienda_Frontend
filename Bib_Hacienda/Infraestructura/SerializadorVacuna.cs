@@ -4,26 +4,6 @@ using Bib_Hacienda.Dominio;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // Conserva el formato de Vacunas.txt del AS-IS
-    // (PersistenciaService.GuardarVacunas / CargarVacunas):
-    // "Nombre|Lote|FechaVencimiento(yyyy-MM-dd)|FechaAplicacion(yyyy-MM-dd)|Tipo|Periodo".
-    // Periodo es el Periodo_aplicacion de Bacteriana, o 0 si la vacuna es Viva
-    // (idéntico al AS-IS).
-    //
-    // Reutilización (sin inventar formato nuevo): el AS-IS también persistía
-    // "vacunas aplicadas" en VacunasAplicadas.txt, con líneas
-    // "PotreroId|NombreRes|Nombre|Lote|FechaVenc|FechaAplic|Tipo|Periodo". Esa
-    // línea es, otra vez, "PotreroId|NombreRes|" seguido de exactamente los
-    // mismos 6 campos que este serializador ya produce/consume para Vacuna.
-    // El UML de este bloque no define un ISerializador ni una entidad
-    // separada para "vacuna aplicada" (no hay una clase VacunaAplicada: una
-    // vacuna aplicada sigue siendo una Vacuna dentro de
-    // Res.L_vacunas_aplicadas), así que no se inventa una interfaz ni un
-    // formato nuevos aquí. El repositorio que en un bloque posterior escriba
-    // VacunasAplicadas.txt puede reutilizar este mismo SerializadorVacuna,
-    // anteponiendo "PotreroId|NombreRes|" al resultado de Serializar (y
-    // quitándolo antes de llamar a Deserializar), igual que se documenta en
-    // SerializadorRes para Reses.txt.
     public class SerializadorVacuna : ISerializador<Vacuna>
     {
         public string Serializar(Vacuna entidad)
@@ -70,10 +50,6 @@ namespace Bib_Hacienda.Infraestructura
             string tipo = partes[4].Trim();
             uint periodo = uint.TryParse(partes[5].Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var per) ? per : 0u;
 
-            // Misma decisión que el AS-IS: cualquier tipo distinto de
-            // "Bacteriana" (comparación case-insensitive) se trata como Viva,
-            // con atenuación por defecto Atenuacion10 (el AS-IS tampoco
-            // persistía la atenuación real en Vacunas.txt).
             if (tipo.Equals("Bacteriana", StringComparison.OrdinalIgnoreCase))
             {
                 return new Bacteriana(nombre, lote, fechaVenc, fechaAplic, periodo);

@@ -12,7 +12,6 @@ import {
 
 const URL_POTREROS = `${environment.apiUrl}/api/potreros`;
 
-/** Acceso HTTP a los endpoints de potreros; el JWT lo agrega authInterceptor. */
 @Injectable({ providedIn: 'root' })
 export class PotreroService {
   private readonly http = inject(HttpClient);

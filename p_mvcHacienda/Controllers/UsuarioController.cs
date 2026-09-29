@@ -12,7 +12,6 @@ namespace p_mvcHacienda.Controllers
             _servicioAutenticacion = servicioAutenticacion;
         }
 
-        // GET: Usuario/Index - Listar todos los usuarios
         [HttpGet]
         public ActionResult Index()
         {
@@ -24,14 +23,12 @@ namespace p_mvcHacienda.Controllers
             return View(usuarios);
         }
 
-        // GET: Usuario/Create - Mostrar formulario de creación
         [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Usuario/Create - Procesar creación de usuario
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(string nombre, string contrasena)

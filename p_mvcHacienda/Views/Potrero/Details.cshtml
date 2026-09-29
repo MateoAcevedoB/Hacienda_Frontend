@@ -6,7 +6,6 @@
 }
 
 <div class="container mt-4">
-    <!-- Encabezado -->
     <div class="aw-page-header mb-4 d-flex justify-content-between align-items-center">
         <div>
             <h1 class="display-6 fw-bold mb-1" style="color: var(--aw-text);">
@@ -20,12 +19,10 @@
         </a>
     </div>
 
-    <!-- Tarjeta principal -->
     <div class="aw-card aw-reveal">
         <div class="aw-card-header">@Model.Identificacion</div>
         <div class="card-body p-4">
             <div class="row">
-                <!-- Información básica -->
                 <div class="col-md-6 mb-4">
                     <h5 class="border-bottom pb-2" style="color: var(--aw-green);">Información Básica</h5>
                     <dl class="row">
@@ -36,7 +33,6 @@
                     </dl>
                 </div>
 
-                <!-- Estadísticas de ocupación -->
                 <div class="col-md-6 mb-4">
                     <h5 class="border-bottom pb-2" style="color: var(--aw-green);">Ocupación</h5>
                     <dl class="row">
@@ -46,7 +42,6 @@
                 </div>
             </div>
 
-            <!-- Lista de reses -->
             @if (Model.L_reses.Any())
             {
                 <div class="mt-4">

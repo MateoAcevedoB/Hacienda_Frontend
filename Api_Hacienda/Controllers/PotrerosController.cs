@@ -21,9 +21,6 @@ namespace Api_Hacienda.Controllers
             this.servicioPotreros = servicioPotreros;
         }
 
-        // ------------------------------------------------------------
-        // ENDPOINT 1 — GET /api/potreros
-        // ------------------------------------------------------------
         [HttpGet]
         public ActionResult<List<PotreroResponse>> ObtenerTodos()
         {
@@ -31,9 +28,6 @@ namespace Api_Hacienda.Controllers
             return Ok(potreros.Select(AConPotreroResponse).ToList());
         }
 
-        // ------------------------------------------------------------
-        // ENDPOINT 2 — GET /api/potreros/{id}
-        // ------------------------------------------------------------
        
         [HttpGet("{id}")]
         public ActionResult<PotreroResponse> ObtenerPorId(string id)
@@ -48,9 +42,6 @@ namespace Api_Hacienda.Controllers
             return Ok(AConPotreroResponse(potrero));
         }
 
-        // ------------------------------------------------------------
-        // ENDPOINT 3 — POST /api/potreros
-        // ------------------------------------------------------------
         [HttpPost]
         public ActionResult<ResultadoOperacion> Crear([FromBody] PotreroRequest request)
         {
@@ -64,9 +55,6 @@ namespace Api_Hacienda.Controllers
             return CreatedAtAction(nameof(ObtenerPorId), new { id = request.Identificacion }, resultado);
         }
 
-        // ------------------------------------------------------------
-        // ENDPOINT 4 — GET /api/potreros/{potreroId}/reses
-        // ------------------------------------------------------------
        
         [HttpGet("{potreroId}/reses")]
         public ActionResult<List<ResResponse>> ObtenerResesDePotrero(string potreroId)
@@ -81,9 +69,6 @@ namespace Api_Hacienda.Controllers
             return Ok(potrero.L_reses.Select(AConResResponse).ToList());
         }
 
-        // ------------------------------------------------------------
-        // ENDPOINT 5 — POST /api/potreros/{potreroId}/reses
-        // ------------------------------------------------------------
 
         [HttpPost("{potreroId}/reses")]
         public ActionResult<ResultadoOperacion> AgregarRes(string potreroId, [FromBody] ResRequest request)
@@ -105,10 +90,6 @@ namespace Api_Hacienda.Controllers
             return CreatedAtAction(nameof(ObtenerRes), new { potreroId, nombre = request.Nombre }, resultado);
         }
 
-        // ------------------------------------------------------------
-        // ENDPOINT 6 — GET /api/potreros/{potreroId}/reses/{nombre}
-        // ------------------------------------------------------------
-        //
         
         [HttpGet("{potreroId}/reses/{nombre}")]
         public ActionResult<ResResponse> ObtenerRes(string potreroId, string nombre)
@@ -123,10 +104,6 @@ namespace Api_Hacienda.Controllers
             return Ok(AConResResponse(res));
         }
 
-        // ------------------------------------------------------------
-        // Mapeo a DTO (no es lógica de negocio: solo traslada datos ya
-        // calculados por el dominio/servicio a la forma de salida HTTP).
-        // ------------------------------------------------------------
         private static PotreroResponse AConPotreroResponse(Potrero potrero)
         {
             return new PotreroResponse

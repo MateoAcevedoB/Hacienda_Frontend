@@ -8,28 +8,6 @@ using Bib_Hacienda.Dominio.Validacion;
 
 namespace Bib_Hacienda.Infraestructura
 {
-    // H-11/H-12: la validación que en el AS-IS hacía PersistenciaService
-    // mediante proxies de Castle DynamicProxy (InterceptorValidarInformacion)
-    // ahora es una llamada explícita del repositorio al validador
-    // correspondiente antes de persistir. Mismo comportamiento observable,
-    // sin AOP.
-    //
-    // Persiste en dos archivos, igual que el AS-IS:
-    // - Potreros.txt: una línea por potrero (serializadorPotrero).
-    // - Reses.txt: una línea por res, con el mismo formato de
-    //   PersistenciaService.GuardarReses/CargarReses
-    //   ("PotreroId|<línea de serializadorRes>"). serializadorRes solo
-    //   conoce los campos propios de la res (ver SerializadorRes, Bloque
-    //   3A); este repositorio antepone/quita el PotreroId, que es la
-    //   relación potrero-res, no un dato de la res.
-    //
-    // FASE 2C: Agregar(potrero) se sigue usando solo para el alta de un
-    // Potrero nuevo (ServicioPotreros.CrearPotrero, con L_reses vacía). La
-    // limitación registrada en fases anteriores -no había forma de volver a
-    // persistir un Potrero ya existente tras mutar su colección de reses en
-    // memoria (p. ej. AnadirResAPotrero)- se resuelve en esta fase con el
-    // método Actualizar (ver su implementación más abajo), que reescribe en
-    // Reses.txt únicamente las líneas correspondientes a este potrero.
     public class RepositorioPotrerosTexto : IRepositorioPotreros
     {
         private const string ArchivoPotreros = "Potreros.txt";
@@ -116,19 +94,6 @@ namespace Bib_Hacienda.Infraestructura
             }
         }
 
-        // FASE 2C: implementación de IRepositorioPotreros.Actualizar.
-        //
-        // Único llamador real hoy: ServicioPotreros.AnadirResAPotrero,
-        // después de Potrero.AgregarRes(res) (mismo caso que
-        // RepositorioPotrerosEfCore.Actualizar). Este repositorio no
-        // mantiene ningún estado en memoria entre llamadas (cada operación
-        // relee/reescribe los .txt, ver comentario de clase), así que no hay
-        // "grafo desconectado" que reconciliar: basta con volver a escribir,
-        // en Reses.txt, las líneas correspondientes a ESTE potrero a partir
-        // de su L_reses actual (que ya incluye la res añadida en memoria),
-        // dejando intactas las líneas de los demás potreros. Mismo patrón de
-        // "leer todo, filtrar, reescribir todo" que ya usa
-        // RepositorioVacunasTexto.Remover.
         public void Actualizar(Potrero potrero)
         {
             if (potrero == null)
@@ -177,8 +142,6 @@ namespace Bib_Hacienda.Infraestructura
             File.WriteAllLines(rutaReses, lineasDeOtrosPotreros.Concat(lineasDelPotrero));
         }
 
-        // Misma lógica que PersistenciaService.CargarPotreros del AS-IS:
-        // normaliza identificaciones y evita duplicados (case-insensitive).
         private List<Potrero> CargarPotrerosDesdeArchivo()
         {
             string ruta = Path.Combine(DirectorioDatos.ObtenerRuta(), ArchivoPotreros);
@@ -207,9 +170,6 @@ namespace Bib_Hacienda.Infraestructura
             return potreros;
         }
 
-        // Misma lógica que PersistenciaService.CargarReses del AS-IS: cada
-        // línea trae el PotreroId al frente; el resto de la línea es el
-        // formato propio de serializadorRes.
         private void CargarResesDentroDePotreros(List<Potrero> potreros)
         {
             string ruta = Path.Combine(DirectorioDatos.ObtenerRuta(), ArchivoReses);
