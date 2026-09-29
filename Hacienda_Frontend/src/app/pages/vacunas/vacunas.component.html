@@ -1,0 +1,212 @@
+<section class="aw-page-header">
+  <h1>Vacunas</h1>
+  <p>Inventario de vacunas disponibles y aplicación a las reses.</p>
+</section>
+
+<section class="aw-stats" aria-label="Resumen de vacunas">
+  <div class="aw-card aw-stat">
+    <span class="aw-stat-label">Vacunas disponibles</span>
+    <strong class="aw-stat-value">{{ vacunas().length }}</strong>
+  </div>
+  <div class="aw-card aw-stat">
+    <span class="aw-stat-label">Vencidas</span>
+    <strong class="aw-stat-value">{{ vencidas() }}</strong>
+  </div>
+</section>
+
+<div class="aw-stack">
+  <section class="aw-card">
+    <div class="aw-card-header">Inventario</div>
+    <div class="aw-card-body">
+      @if (cargando()) {
+        <p class="aw-estado" role="status">
+          <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando vacunas…
+        </p>
+      } @else if (errorListado(); as mensaje) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+      } @else if (vacunas().length === 0) {
+        <div class="aw-empty">
+          <span class="icon" aria-hidden="true">vaccines</span>No hay vacunas disponibles.
+        </div>
+      } @else {
+        <div class="aw-tabla-scroll">
+          <table class="aw-table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Lote</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Aplicación</th>
+                <th scope="col">Vencimiento</th>
+                <th scope="col" class="aw-num">Período (sem.)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (v of vacunas(); track v.lote) {
+                <tr>
+                  <td><strong>{{ v.nombre }}</strong></td>
+                  <td>{{ v.lote }}</td>
+                  <td><span class="aw-badge">{{ v.tipo }}</span></td>
+                  <td>{{ v.fechaAplicacion | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    {{ v.fechaVencimiento | date: 'dd/MM/yyyy' }}
+                    @if (estaVencida(v.fechaVencimiento)) {
+                      <span class="aw-badge aw-badge-danger">Vencida</span>
+                    }
+                  </td>
+                  <td class="aw-num">{{ v.periodoAplicacion ?? '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (puedeEscribir()) {
+    <div class="aw-split">
+      <section class="aw-card">
+        <div class="aw-card-header">Nueva vacuna</div>
+        <div class="aw-card-body">
+          @if (exitoCrear(); as mensaje) {
+            <div class="aw-alert aw-alert-success" role="status">{{ mensaje }}</div>
+          }
+          @if (errorCrear(); as mensaje) {
+            <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+          }
+          <form [formGroup]="formCrear" (ngSubmit)="crear()" novalidate>
+            <div class="aw-form-grid">
+              <div>
+                <label class="aw-label" for="v-tipo">Tipo</label>
+                <select id="v-tipo" class="aw-input" formControlName="tipo">
+                  <option value="bacteriana">Bacteriana</option>
+                  <option value="viva">Viva</option>
+                </select>
+              </div>
+              <div>
+                <label class="aw-label" for="v-nombre">Nombre</label>
+                <input id="v-nombre" class="aw-input" type="text" formControlName="nombre" maxlength="200" />
+                @if (formCrear.controls.nombre.touched && formCrear.controls.nombre.invalid) {
+                  <p class="aw-field-error">El nombre es obligatorio.</p>
+                }
+              </div>
+              <div>
+                <label class="aw-label" for="v-lote">Lote</label>
+                <input id="v-lote" class="aw-input" type="text" formControlName="lote" maxlength="100" />
+                @if (formCrear.controls.lote.touched && formCrear.controls.lote.invalid) {
+                  <p class="aw-field-error">El lote es obligatorio.</p>
+                }
+              </div>
+              <div>
+                <label class="aw-label" for="v-aplic">Fecha de aplicación</label>
+                <input id="v-aplic" class="aw-input" type="date" formControlName="fechaAplicacion" />
+                @if (formCrear.controls.fechaAplicacion.touched && formCrear.controls.fechaAplicacion.invalid) {
+                  <p class="aw-field-error">Indica la fecha de aplicación.</p>
+                }
+              </div>
+              <div>
+                <label class="aw-label" for="v-venc">Fecha de vencimiento</label>
+                <input id="v-venc" class="aw-input" type="date" formControlName="fechaVencimiento" />
+                @if (formCrear.controls.fechaVencimiento.touched && formCrear.controls.fechaVencimiento.invalid) {
+                  <p class="aw-field-error">Indica la fecha de vencimiento.</p>
+                }
+              </div>
+              @if (esBacteriana) {
+                <div>
+                  <label class="aw-label" for="v-periodo">Período de aplicación (semanas)</label>
+                  <input
+                    id="v-periodo"
+                    class="aw-input"
+                    type="number"
+                    formControlName="periodoAplicacion"
+                    [min]="periodo.min"
+                    [max]="periodo.max"
+                  />
+                  @if (formCrear.controls.periodoAplicacion.invalid) {
+                    <p class="aw-field-error">Debe estar entre {{ periodo.min }} y {{ periodo.max }} semanas.</p>
+                  }
+                </div>
+              } @else {
+                <div>
+                  <label class="aw-label" for="v-grado">Grado de atenuación</label>
+                  <select id="v-grado" class="aw-input" formControlName="atenuacionGrado">
+                    @for (g of grados; track g) {
+                      <option [value]="g">{{ g }}</option>
+                    }
+                  </select>
+                </div>
+              }
+            </div>
+            @if (formCrear.hasError('vencimientoAnterior') && formCrear.controls.fechaVencimiento.touched) {
+              <p class="aw-field-error">La fecha de vencimiento debe ser posterior a la de aplicación.</p>
+            }
+            <div class="aw-form-actions">
+              <button class="aw-btn aw-btn-primary" type="submit" [disabled]="guardandoVacuna()">
+                @if (guardandoVacuna()) {
+                  <span class="aw-spinner" aria-hidden="true"></span> Guardando…
+                } @else {
+                  <span class="icon" aria-hidden="true">add</span> Agregar al inventario
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="aw-card">
+        <div class="aw-card-header">Aplicar vacuna</div>
+        <div class="aw-card-body">
+          @if (exitoAplicar(); as mensaje) {
+            <div class="aw-alert aw-alert-success" role="status">{{ mensaje }}</div>
+          }
+          @if (errorAplicar(); as mensaje) {
+            <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+          }
+          <form [formGroup]="formAplicar" (ngSubmit)="aplicar()" novalidate>
+            <div class="aw-stack">
+              <div>
+                <label class="aw-label" for="a-potrero">Potrero</label>
+                <select id="a-potrero" class="aw-input" formControlName="potreroId">
+                  <option value="">Selecciona…</option>
+                  @for (p of potreros(); track p.identificacion) {
+                    <option [value]="p.identificacion">{{ p.identificacion }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="aw-label" for="a-res">Res</label>
+                <select id="a-res" class="aw-input" formControlName="nombreRes">
+                  <option value="">{{ cargandoReses() ? 'Cargando…' : 'Selecciona…' }}</option>
+                  @for (r of reses(); track r.nombre) {
+                    <option [value]="r.nombre">{{ r.nombre }} ({{ r.tipo }})</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="aw-label" for="a-lote">Vacuna (lote)</label>
+                <select id="a-lote" class="aw-input" formControlName="loteVacuna">
+                  <option value="">Selecciona…</option>
+                  @for (v of vacunas(); track v.lote) {
+                    <option [value]="v.lote">{{ v.nombre }} · {{ v.lote }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div class="aw-form-actions">
+              <button class="aw-btn aw-btn-primary" type="submit" [disabled]="aplicando() || formAplicar.invalid">
+                @if (aplicando()) {
+                  <span class="aw-spinner" aria-hidden="true"></span> Aplicando…
+                } @else {
+                  <span class="icon" aria-hidden="true">vaccines</span> Aplicar
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  } @else {
+    <p class="aw-hint">Tu rol es de solo consulta: no puedes crear ni aplicar vacunas.</p>
+  }
+</div>

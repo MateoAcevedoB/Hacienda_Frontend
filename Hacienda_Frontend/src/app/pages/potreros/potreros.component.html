@@ -1,0 +1,143 @@
+<section class="aw-page-header">
+  <h1>Potreros</h1>
+  <p>Consulta los potreros registrados y crea nuevos.</p>
+</section>
+
+<section class="estadisticas" aria-label="Resumen de potreros">
+  <div class="aw-card estadistica">
+    <span class="estadistica-etiqueta">Total potreros</span>
+    <strong class="estadistica-valor">{{ totalPotreros() }}</strong>
+  </div>
+  <div class="aw-card estadistica">
+    <span class="estadistica-etiqueta">Total reses</span>
+    <strong class="estadistica-valor">{{ totalReses() }}</strong>
+  </div>
+  <div class="aw-card estadistica">
+    <span class="estadistica-etiqueta">Potreros vacíos</span>
+    <strong class="estadistica-valor">{{ potrerosVacios() }}</strong>
+  </div>
+  <div class="aw-card estadistica">
+    <span class="estadistica-etiqueta">Con reses</span>
+    <strong class="estadistica-valor">{{ potrerosConReses() }}</strong>
+  </div>
+</section>
+
+<div class="disposicion" [class.solo-lista]="!puedeEscribir()">
+  @if (puedeEscribir()) {
+    <section class="aw-card">
+      <div class="aw-card-header">Nuevo potrero</div>
+      <div class="aw-card-body">
+        @if (exito(); as mensaje) {
+          <div class="aw-alert aw-alert-success" role="status">{{ mensaje }}</div>
+        }
+        @if (errorCreacion(); as mensaje) {
+          <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+        }
+
+        <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+          <div class="campo">
+            <label class="aw-label" for="identificacion">Identificación</label>
+            <input
+              id="identificacion"
+              class="aw-input"
+              [class.aw-invalid]="identificacion.touched && identificacion.invalid"
+              type="text"
+              formControlName="identificacion"
+              placeholder="Ej: Potrero Norte, P-001"
+              maxlength="100"
+              autocomplete="off"
+            />
+            @if (identificacion.touched && identificacion.invalid) {
+              <p class="aw-field-error">
+                @if (identificacion.hasError('maxlength')) {
+                  La identificación no puede superar los 100 caracteres.
+                } @else {
+                  La identificación es obligatoria.
+                }
+              </p>
+            }
+          </div>
+
+          <div class="campo">
+            <label class="aw-label" for="tipoPotrero">Tipo de potrero</label>
+            <select
+              id="tipoPotrero"
+              class="aw-input"
+              [class.aw-invalid]="tipoPotrero.touched && tipoPotrero.invalid"
+              formControlName="tipoPotrero"
+            >
+              <option value="">-- Selecciona un tipo --</option>
+              @for (tipo of tipos; track tipo.valor) {
+                <option [value]="tipo.valor">{{ tipo.etiqueta }}</option>
+              }
+            </select>
+            @if (tipoPotrero.touched && tipoPotrero.invalid) {
+              <p class="aw-field-error">Selecciona un tipo de potrero.</p>
+            }
+          </div>
+
+          <button class="aw-btn aw-btn-primary" type="submit" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="aw-spinner" aria-hidden="true"></span> Creando…
+            } @else {
+              <span class="icon" aria-hidden="true">add</span> Crear potrero
+            }
+          </button>
+        </form>
+      </div>
+    </section>
+
+  }
+
+  <section class="aw-card">
+    <div class="aw-card-header">Potreros registrados</div>
+    <div class="aw-card-body">
+      @if (cargando()) {
+        <p class="aw-estado" role="status">
+          <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando potreros…
+        </p>
+      } @else if (errorListado(); as mensaje) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+        <button class="aw-btn aw-btn-secondary" type="button" (click)="cargarPotreros()">
+          <span class="icon" aria-hidden="true">refresh</span> Reintentar
+        </button>
+      } @else if (potreros().length === 0) {
+        <p class="aw-estado">No hay potreros registrados. Crea el primero con el formulario.</p>
+      } @else {
+        <div class="aw-tabla-scroll">
+          <table class="aw-table">
+            <thead>
+              <tr>
+                <th scope="col">Identificación</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Cantidad de reses</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (potrero of potreros(); track potrero.identificacion) {
+                <tr>
+                  <td>
+                    <strong>{{ potrero.identificacion }}</strong>
+                  </td>
+                  <td>
+                    <span class="aw-badge">{{ etiquetaDeTipo(potrero.tipoPotrero) }}</span>
+                  </td>
+                  <td>{{ potrero.cantidadReses }}</td>
+                  <td>
+                    <a
+                      class="aw-btn aw-btn-secondary"
+                      [routerLink]="['/potreros', potrero.identificacion]"
+                    >
+                      <span class="icon" aria-hidden="true">visibility</span> Ver detalle
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+</div>

@@ -1,0 +1,103 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1.5rem;
+  padding: .6rem 1.25rem;
+  background: var(--aw-surface);
+  border-bottom: 1px solid var(--aw-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-family: 'Nunito Sans', 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--aw-green);
+  text-decoration: none;
+}
+
+.navegacion {
+  display: flex;
+  gap: .25rem;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.rol {
+  background: var(--aw-green-soft);
+  color: var(--aw-green-dark);
+  padding: .15rem .55rem;
+  font-size: .75rem;
+  text-transform: capitalize;
+}
+
+.navegacion a {
+  white-space: nowrap;
+  padding: .45rem .8rem;
+  border-radius: var(--aw-radius-sm);
+  color: var(--aw-text);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.navegacion a:hover {
+  background: var(--aw-green-soft);
+}
+
+.navegacion a.activo {
+  background: var(--aw-green-soft);
+  color: var(--aw-green-dark);
+}
+
+.sesion {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.usuario {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-weight: 600;
+}
+
+.contenido {
+  flex: 1;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.pie {
+  padding: 1rem;
+  text-align: center;
+  color: var(--aw-muted);
+  background: var(--aw-surface);
+  border-top: 1px solid var(--aw-border);
+}
+
+@media (max-width: 600px) {
+  .navegacion {
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .sesion {
+    margin-left: auto;
+  }
+}

@@ -1,0 +1,1273 @@
+{
+  "info": {
+    "_postman_id": "bd423346-b363-4d0c-b763-be06d5c0d9fc",
+    "name": "Hacienda TO-BE Backend",
+    "description": "Colección de pruebas para Api_Hacienda (Hacienda_TOBE_BACKEND, FASE 5). Contiene exclusivamente los 14 endpoints REST reales existentes en el Backend (AuthController, PotrerosController, UsuariosController, VacunacionController, VacunasController, VentasController), organizados por recurso, con casos positivos y negativos.\n\nNO incluye Historia Clínica: existe en Bib_Hacienda (ServicioHistoriaClinica/IRepositorioHistoriaClinica) pero todavía no está expuesta como endpoint REST (ver README, sección 'Limitaciones conocidas').\n\nUso recomendado:\n1. Importar también el environment 'Hacienda TO-BE Backend - Local' y seleccionarlo.\n2. Ejecutar '01 - Autenticación > Login - Credenciales válidas' primero: guarda el JWT en {{token}} automáticamente.\n3. Ejecutar el resto de las carpetas en orden (02 a 07); varias requests reutilizan {{potreroId}}/{{nombreRes}}/{{loteVacuna}} creados en pasos anteriores.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Autenticación",
+      "description": "POST /api/auth/login. Único endpoint sin [Authorize] (AllowAnonymous). Al ejecutar 'Login - Credenciales válidas' con éxito, el token se guarda automáticamente en la variable de entorno {{token}} y se reutiliza en el resto de la colección.",
+      "item": [
+        {
+          "name": "Login - Credenciales válidas",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autentica y guarda el JWT devuelto en la variable de entorno {{token}}. Reemplazar 'nombre'/'contrasena' por credenciales reales existentes en la base de datos (usar un usuario con rol 'admin' si luego se van a probar los endpoints de 07 - Usuarios).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"admin\",\n  \"contrasena\": \"CAMBIAR_POR_CONTRASENA_REAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('token', jsonData.token);",
+                  "    pm.test('La respuesta incluye un token', function () {",
+                  "        pm.expect(jsonData.token).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - Credenciales incorrectas (negativo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Caso negativo: usuario/contraseña incorrectos. Debe responder 401 Unauthorized.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"usuario_inexistente\",\n  \"contrasena\": \"clave_incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login - Datos incompletos (negativo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Caso negativo: campos vacíos. Debe responder 400 Bad Request (validación estructural, LoginRequest con [Required]).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"contrasena\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Potreros",
+      "description": "PotrerosController: CRUD de Potreros. Todos los endpoints requieren [Authorize] (JWT válido).",
+      "item": [
+        {
+          "name": "Listar todos los potreros",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros"
+              ]
+            },
+            "description": "GET /api/potreros. Devuelve List<PotreroResponse>."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener potrero por id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/{{potreroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "{{potreroId}}"
+              ]
+            },
+            "description": "GET /api/potreros/{id}. Usa la variable {{potreroId}} (debe existir previamente, ver 'Crear potrero')."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener potrero inexistente (negativo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/POTRERO_QUE_NO_EXISTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "POTRERO_QUE_NO_EXISTE"
+              ]
+            },
+            "description": "Caso negativo: id inexistente. Debe responder 404 Not Found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear potrero",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros"
+              ]
+            },
+            "description": "POST /api/potreros. TipoPotrero debe ser 'ternero', 'cebon' o 'novillo' (únicas claves registradas en IRegistroFabricasRes, ver Program.cs). Responde 201 Created con Location vía CreatedAtAction.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificacion\": \"{{potreroId}}\",\n  \"tipoPotrero\": \"ternero\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear potrero - datos inválidos (negativo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros"
+              ]
+            },
+            "description": "Caso negativo: Identificacion/TipoPotrero vacíos. Debe responder 400 (validación estructural, PotreroRequest con [Required]).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificacion\": \"\",\n  \"tipoPotrero\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acceso sin token (negativo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros"
+              ]
+            },
+            "description": "Caso negativo: sin header Authorization. Debe responder 401 Unauthorized ([Authorize] del Controller)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Reses",
+      "description": "Sub-recurso de Potrero (PotrerosController): api/potreros/{potreroId}/reses[...]. Res no tiene id propio en la API; se identifica por PotreroId + Nombre.",
+      "item": [
+        {
+          "name": "Listar reses de un potrero",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/{{potreroId}}/reses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "{{potreroId}}",
+                "reses"
+              ]
+            },
+            "description": "GET /api/potreros/{potreroId}/reses."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Agregar res a un potrero",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/{{potreroId}}/reses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "{{potreroId}}",
+                "reses"
+              ]
+            },
+            "description": "POST /api/potreros/{potreroId}/reses. El tipo de Res (Ternero/Cebon/Novillo) lo determina el TipoPotrero del potrero destino, no este body. Responde 201 Created.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{nombreRes}}\",\n  \"edad\": 5,\n  \"peso\": 120\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener res por nombre",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/{{potreroId}}/reses/{{nombreRes}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "{{potreroId}}",
+                "reses",
+                "{{nombreRes}}"
+              ]
+            },
+            "description": "GET /api/potreros/{potreroId}/reses/{nombre}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener res inexistente (negativo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/{{potreroId}}/reses/RES_QUE_NO_EXISTE",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "{{potreroId}}",
+                "reses",
+                "RES_QUE_NO_EXISTE"
+              ]
+            },
+            "description": "Caso negativo: res inexistente en el potrero. Debe responder 404 Not Found."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Vacunas",
+      "description": "VacunasController: inventario disponible (ResId == null). GET nunca devuelve vacunas ya aplicadas.",
+      "item": [
+        {
+          "name": "Listar vacunas disponibles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vacunas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vacunas"
+              ]
+            },
+            "description": "GET /api/vacunas."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear vacuna Bacteriana",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vacunas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vacunas"
+              ]
+            },
+            "description": "POST /api/vacunas. PeriodoAplicacion informado y AtenuacionGrado null => Bacteriana (ver ServicioInventarioVacunas.CrearVacuna). Responde 201 Created.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Fiebre Aftosa\",\n  \"lote\": \"{{loteVacuna}}\",\n  \"fechaVencimiento\": \"2027-01-01T00:00:00Z\",\n  \"fechaAplicacion\": \"2026-08-01T00:00:00Z\",\n  \"periodoAplicacion\": 6,\n  \"atenuacionGrado\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear vacuna Viva",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vacunas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vacunas"
+              ]
+            },
+            "description": "POST /api/vacunas. AtenuacionGrado informado (10/20/30) y PeriodoAplicacion null => Viva. Responde 201 Created.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Brucelosis\",\n  \"lote\": \"LOTE-VIVA-001\",\n  \"fechaVencimiento\": \"2027-01-01T00:00:00Z\",\n  \"fechaAplicacion\": \"2026-08-01T00:00:00Z\",\n  \"periodoAplicacion\": null,\n  \"atenuacionGrado\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 201', function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear vacuna - grado de atenuación inválido (negativo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vacunas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vacunas"
+              ]
+            },
+            "description": "Caso negativo: 15 no es un valor válido de Viva.enum_l_atenuaciones (solo 10/20/30). Debe responder 400 Bad Request (Enum.IsDefined en VacunasController.Crear).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Brucelosis\",\n  \"lote\": \"LOTE-INVALIDO-001\",\n  \"fechaVencimiento\": \"2027-01-01T00:00:00Z\",\n  \"fechaAplicacion\": \"2026-08-01T00:00:00Z\",\n  \"periodoAplicacion\": null,\n  \"atenuacionGrado\": 15\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Vacunación",
+      "description": "VacunacionController: aplicar una vacuna del inventario disponible a una Res existente.",
+      "item": [
+        {
+          "name": "Aplicar vacuna a una res",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vacunacion/aplicar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vacunacion",
+                "aplicar"
+              ]
+            },
+            "description": "POST /api/vacunacion/aplicar. Requiere que potreroId/nombreRes/loteVacuna existan realmente (ejecutar antes 'Crear potrero', 'Agregar res' y 'Crear vacuna Bacteriana'). Responde 200 OK (no 201: no crea un recurso nuevo direccionable).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"potreroId\": \"{{potreroId}}\",\n  \"nombreRes\": \"{{nombreRes}}\",\n  \"loteVacuna\": \"{{loteVacuna}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200 o 400', function () { pm.expect([200,400]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Aplicar vacuna - potrero inexistente (negativo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/vacunacion/aplicar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "vacunacion",
+                "aplicar"
+              ]
+            },
+            "description": "Caso negativo: potrero inexistente. Debe responder 404 Not Found.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"potreroId\": \"POTRERO_QUE_NO_EXISTE\",\n  \"nombreRes\": \"{{nombreRes}}\",\n  \"loteVacuna\": \"{{loteVacuna}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Ventas",
+      "description": "VentasController: consulta de ventas (GET /api/ventas, con filtros mutuamente excluyentes) y venta de una Res.",
+      "item": [
+        {
+          "name": "Listar todas las ventas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ]
+            },
+            "description": "GET /api/ventas sin filtros -> ObtenerTodasLasVentas()."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar ventas por potrero",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas?potreroId={{potreroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ],
+              "query": [
+                {
+                  "key": "potreroId",
+                  "value": "{{potreroId}}"
+                }
+              ]
+            },
+            "description": "GET /api/ventas?potreroId=... -> ObtenerVentasPorPotrero(potreroId)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar ventas por rango de fechas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas?desde=2026-01-01&hasta=2026-12-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ventas"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-12-31"
+                }
+              ]
+            },
+            "description": "GET /api/ventas?desde=...&hasta=... -> ObtenerVentasPorFechas(desde,hasta). No se puede combinar con potreroId (ver VentasController.ObtenerVentas: responde 400 si se combinan)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Vender una res",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/potreros/{{potreroId}}/reses/{{nombreRes}}/vender",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "potreros",
+                "{{potreroId}}",
+                "reses",
+                "{{nombreRes}}",
+                "vender"
+              ]
+            },
+            "description": "POST /api/potreros/{potreroId}/reses/{nombre}/vender. Responde 201 Created (da de alta una Venta nueva). LIMITACIÓN CONOCIDA: la res vendida puede seguir apareciendo en GET /api/potreros/{potreroId}/reses (ver README, sección 'Limitaciones conocidas').",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto\": 1500000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 201 o 400', function () { pm.expect([201,400]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Usuarios",
+      "description": "UsuariosController: administración de usuarios. Protegido con [Authorize(Roles = \"admin\")] en TODOS sus endpoints: requiere haber hecho login con un usuario cuyo Nombre sea, a la vez, su rol \"admin\" (ver ProveedorPermisosPorRol; el proyecto no modela un Rol separado del Nombre).",
+      "item": [
+        {
+          "name": "Listar usuarios (requiere rol admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "description": "GET /api/usuarios. Requiere {{token}} de un login con usuario 'admin'."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 200 o 403', function () { pm.expect([200,403]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear usuario (requiere rol admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "description": "POST /api/usuarios. Requiere {{token}} de un login con usuario 'admin'. Responde 201 Created.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"nuevo_empleado\",\n  \"contrasena\": \"CAMBIAR_POR_CONTRASENA_REAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 201 o 403', function () { pm.expect([201,403]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear usuario - datos inválidos (negativo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "description": "Caso negativo: campos vacíos. Debe responder 400 Bad Request.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"contrasena\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 400 o 403', function () { pm.expect([400,403]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acceso sin rol admin (negativo)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            },
+            "description": "Caso negativo: token válido pero de un usuario sin rol 'admin'. Debe responder 403 Forbidden. Requiere haber hecho login previamente con un usuario NO admin y pegar ese token manualmente (este request reutiliza {{token}}, que normalmente tendrá el último login ejecutado)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code es 403 (si el token no es admin)', function () { pm.expect([403,200]).to.include(pm.response.code); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7092",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "potreroId",
+      "value": "Potrero-Prueba-01",
+      "type": "string"
+    },
+    {
+      "key": "nombreRes",
+      "value": "Res-Prueba-01",
+      "type": "string"
+    },
+    {
+      "key": "loteVacuna",
+      "value": "LOTE-BACT-001",
+      "type": "string"
+    }
+  ]
+}

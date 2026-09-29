@@ -1,0 +1,64 @@
+<main class="login">
+  <section class="aw-card login-card">
+    <div class="login-panel" aria-hidden="true">
+      <img src="imagenes/vaca.webp" alt="" />
+      <div class="login-panel-texto">
+        <span class="icon login-panel-icono">grass</span>
+        <p>Potreros, reses, vacunas y ventas de tu hacienda en un solo lugar.</p>
+      </div>
+    </div>
+
+    <div class="login-formulario">
+      <h1>Hacienda TOBE</h1>
+      <p class="login-subtitulo">Inicia sesión para continuar</p>
+
+      @if (aviso && !error()) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ aviso }}</div>
+      }
+      @if (error(); as mensaje) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+      }
+
+      <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+        <div class="campo">
+          <label class="aw-label" for="nombre">Usuario</label>
+          <input
+            id="nombre"
+            class="aw-input"
+            [class.aw-invalid]="nombre.touched && nombre.invalid"
+            type="text"
+            formControlName="nombre"
+            autocomplete="username"
+            maxlength="100"
+          />
+          @if (nombre.touched && nombre.invalid) {
+            <p class="aw-field-error">Ingresa tu nombre de usuario.</p>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="aw-label" for="contrasena">Contraseña</label>
+          <input
+            id="contrasena"
+            class="aw-input"
+            [class.aw-invalid]="contrasena.touched && contrasena.invalid"
+            type="password"
+            formControlName="contrasena"
+            autocomplete="current-password"
+          />
+          @if (contrasena.touched && contrasena.invalid) {
+            <p class="aw-field-error">Ingresa tu contraseña.</p>
+          }
+        </div>
+
+        <button class="aw-btn aw-btn-primary boton-ingresar" type="submit" [disabled]="cargando()">
+          @if (cargando()) {
+            <span class="aw-spinner" aria-hidden="true"></span> Ingresando…
+          } @else {
+            Ingresar
+          }
+        </button>
+      </form>
+    </div>
+  </section>
+</main>

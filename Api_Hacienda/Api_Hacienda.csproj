@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <!-- FASE 3C: JWT Bearer Authentication para Api_Hacienda. Versión 8.0.x,
+         alineada con el resto de paquetes Microsoft.* del proyecto (net8.0). -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
+    <!-- FASE 1B: EF Core + PostgreSQL. Api_Hacienda es el composition root:
+         registra y configura HaciendaDbContext (definido en Bib_Hacienda)
+         contra PostgreSQL mediante Npgsql, y es el startup project para
+         las herramientas de "dotnet ef" (migraciones). -->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- FASE 1A: Api_Hacienda -> Bib_Hacienda (única dirección permitida).
+         No hay referencia hacia p_mvcHacienda. -->
+    <ProjectReference Include="..\Bib_Hacienda\Bib_Hacienda.csproj" />
+  </ItemGroup>
+
+</Project>

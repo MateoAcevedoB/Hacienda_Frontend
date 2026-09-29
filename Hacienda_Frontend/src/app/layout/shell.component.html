@@ -1,0 +1,36 @@
+<header class="barra">
+  <a class="marca" routerLink="/dashboard">
+    <span class="icon">grass</span>
+    Hacienda TOBE
+  </a>
+
+  <nav class="navegacion" aria-label="Principal">
+    <a routerLink="/dashboard" routerLinkActive="activo">Inicio</a>
+    <a routerLink="/potreros" routerLinkActive="activo">Potreros</a>
+    <a routerLink="/ventas" routerLinkActive="activo">Ventas</a>
+    <a routerLink="/vacunas" routerLinkActive="activo">Vacunas</a>
+    @if (esAdmin()) {
+      <a routerLink="/usuarios" routerLinkActive="activo">Usuarios</a>
+    }
+  </nav>
+
+  <div class="sesion">
+    @if (usuario(); as actual) {
+      <span class="usuario" [title]="'Rol: ' + actual.rol">
+        <span class="icon">person</span>
+        {{ actual.nombre }}
+        <span class="aw-badge rol">{{ actual.rol }}</span>
+      </span>
+    }
+    <button class="aw-btn aw-btn-secondary" type="button" (click)="cerrarSesion()">
+      <span class="icon">logout</span>
+      Cerrar sesión
+    </button>
+  </div>
+</header>
+
+<main class="contenido">
+  <router-outlet />
+</main>
+
+<footer class="pie">&copy; {{ anio }} Hacienda TOBE · Gestión ganadera</footer>

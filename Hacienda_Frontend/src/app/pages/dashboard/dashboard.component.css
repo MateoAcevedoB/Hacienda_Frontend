@@ -1,0 +1,41 @@
+.modulo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  color: var(--aw-text);
+  text-decoration: none;
+}
+
+.modulo:hover {
+  border-color: var(--aw-green);
+}
+
+.modulo-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--aw-green-soft);
+  color: var(--aw-green);
+}
+
+.modulo-icono .icon {
+  font-size: 1.9rem;
+}
+
+.modulo-texto {
+  display: block;
+  color: var(--aw-muted);
+}
+
+.modulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.recientes .aw-card-body { padding: 0; }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FASE 4C-2 — Configuración de cobertura para Bib_Hacienda.
+
+  Este runsettings define DOS mediciones posibles con el data collector
+  de Coverlet (XPlat Code Coverage):
+
+  1) Cobertura GLOBAL (sin exclusiones): usar sin este archivo, o con
+     <Exclude /> vacío, para obtener el número que compara "antes vs
+     después" de la FASE 4C-2 (era 41% líneas / 33% ramas).
+
+  2) Cobertura de LÓGICA DE NEGOCIO (con exclusiones, este archivo):
+     excluye del cálculo el namespace Bib_Hacienda.Infraestructura
+     completo (repositorios de texto, repositorios EF Core,
+     serializadores, DbContext, hashing) porque es infraestructura
+     técnica de persistencia/serialización, no reglas de negocio.
+
+  JUSTIFICACIÓN DE LAS EXCLUSIONES (defendible en sustentación):
+  - RepositorioXTexto / RepositorioXEfCore: acceso a archivos planos y a
+    PostgreSQL vía EF Core. No contienen reglas de negocio: delegan la
+    validación a los Validadores de Bib_Hacienda.Dominio.Validacion
+    (que SÍ están incluidos y SÍ se exige que estén cubiertos).
+  - SerializadorX: convierten entidades de dominio a/desde texto plano
+    (formato "campo|campo|..."). Es mapeo de datos, no lógica de negocio.
+  - HaciendaDbContext: configuración de mapeo EF Core -> PostgreSQL
+    (OnModelCreating, fluent API). No es código ejecutable con reglas.
+  - ServicioHashSha256: envoltorio directo sobre System.Security.Cryptography
+    (SHA256), sin lógica de negocio propia; IServicioHash se mockea en los
+    tests de ServicioAutenticacion (que sí valida el flujo de negocio).
+  - DirectorioDatos: solo resuelve rutas de archivo (Path.Combine).
+
+  NO SE EXCLUYE (deliberadamente) ningún namespace de:
+  - Bib_Hacienda.Dominio (incluye Dominio.Reglas y Dominio.Validacion)
+  - Bib_Hacienda.Aplicacion (Servicios, Fabricas, Autorizacion)
+  porque esa es exactamente la lógica de negocio que la FASE 4C-2 exige
+  cubrir al 80%.
+
+  USO:
+    dotnet test settings coverlet.runsettings \
+      collect:"XPlat Code Coverage" \
+      results-directory ./TestResults
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Exclusión SOLO de infraestructura técnica (ver justificación arriba) -->
+          <Exclude>[Bib_Hacienda]Bib_Hacienda.Infraestructura.*</Exclude>
+          <!-- El DbContext queda cubierto por el patrón anterior
+               (Bib_Hacienda.Infraestructura.Persistencia.HaciendaDbContext),
+               se deja explícito por claridad -->
+          <ExcludeByFile>**/Infraestructura/**/*.cs</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

@@ -1,0 +1,178 @@
+<section class="aw-page-header encabezado">
+  <div>
+    <h1>Detalle del potrero</h1>
+    <p>Información del potrero y las reses que contiene.</p>
+  </div>
+  <a class="aw-btn aw-btn-secondary" routerLink="/potreros">
+    <span class="icon" aria-hidden="true">arrow_back</span> Volver a potreros
+  </a>
+</section>
+
+@if (cargandoPotrero()) {
+  <p class="aw-estado" role="status">
+    <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando potrero…
+  </p>
+} @else if (errorPotrero(); as mensaje) {
+  <div class="aw-alert aw-alert-danger" role="alert">
+    @if (noEncontrado()) {
+      El potrero no fue encontrado.
+    } @else {
+      {{ mensaje }}
+    }
+  </div>
+  <a class="aw-btn aw-btn-primary" routerLink="/potreros">Volver al listado</a>
+} @else if (potrero(); as actual) {
+  <section class="aw-card seccion">
+    <div class="aw-card-header">{{ actual.identificacion }}</div>
+    <div class="aw-card-body">
+      <dl class="datos">
+        <div>
+          <dt>Identificación</dt>
+          <dd>{{ actual.identificacion }}</dd>
+        </div>
+        <div>
+          <dt>Tipo</dt>
+          <dd>
+            <span class="aw-badge">{{ etiquetaDeTipo(actual.tipoPotrero) }}</span>
+          </dd>
+        </div>
+        <div>
+          <dt>Cantidad de reses</dt>
+          <dd>{{ actual.cantidadReses }}</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  @if (exitoVenta(); as mensaje) {
+    <div class="aw-alert aw-alert-success" role="status">{{ mensaje }}</div>
+  }
+
+  <section class="aw-card seccion">
+    <div class="aw-card-header">Reses del potrero</div>
+    <div class="aw-card-body">
+      @if (cargandoReses()) {
+        <p class="aw-estado" role="status">
+          <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando reses…
+        </p>
+      } @else if (errorReses(); as mensaje) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+      } @else if (reses().length === 0) {
+        <p class="aw-estado">Este potrero todavía no tiene reses registradas.</p>
+      } @else {
+        <div class="aw-tabla-scroll">
+          <table class="aw-table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Tipo</th>
+                <th scope="col" class="aw-num">Peso (kg)</th>
+                <th scope="col" class="aw-num">Edad (meses)</th>
+                @if (puedeEscribir()) {
+                  <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (res of reses(); track res.nombre) {
+                <tr>
+                  <td><strong>{{ res.nombre }}</strong></td>
+                  <td><span class="aw-badge">{{ res.tipo }}</span></td>
+                  <td class="aw-num">{{ res.peso }}</td>
+                  <td class="aw-num">{{ res.edad }}</td>
+                  @if (puedeEscribir()) {
+                    <td class="aw-num">
+                      <button class="aw-btn aw-btn-ghost aw-btn-sm" type="button" (click)="abrirVenta(res.nombre)">
+                        <span class="icon" aria-hidden="true">sell</span> Vender
+                      </button>
+                    </td>
+                  }
+                </tr>
+                @if (resEnVenta() === res.nombre) {
+                  <tr class="aw-row-panel">
+                    <td [attr.colspan]="5">
+                      @if (errorVenta(); as mensaje) {
+                        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+                      }
+                      <form class="aw-toolbar" (submit)="$event.preventDefault(); venderRes()">
+                        <div>
+                          <label class="aw-label" [for]="'monto-' + res.nombre">Monto de venta de {{ res.nombre }}</label>
+                          <input [id]="'monto-' + res.nombre" class="aw-input" type="number" min="1" [formControl]="monto" />
+                          @if (monto.touched && monto.invalid) {
+                            <p class="aw-field-error">El monto debe ser mayor a 0.</p>
+                          }
+                          @if (reglas; as r) {
+                            <p class="aw-hint">Peso recomendado para vender: {{ r.pesoVenta }} kg.</p>
+                          }
+                        </div>
+                        <div class="aw-form-actions">
+                          <button class="aw-btn aw-btn-primary" type="submit" [disabled]="vendiendo()">
+                            @if (vendiendo()) { <span class="aw-spinner" aria-hidden="true"></span> Vendiendo… } @else { Confirmar venta }
+                          </button>
+                          <button class="aw-btn aw-btn-secondary" type="button" (click)="abrirVenta(res.nombre)">Cancelar</button>
+                        </div>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (puedeEscribir()) {
+    <section class="aw-card">
+      <div class="aw-card-header">Agregar res</div>
+      <div class="aw-card-body">
+        @if (exitoRes(); as mensaje) {
+          <div class="aw-alert aw-alert-success" role="status">{{ mensaje }}</div>
+        }
+        @if (errorRes(); as mensaje) {
+          <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+        }
+        <form [formGroup]="formRes" (ngSubmit)="agregarRes()" novalidate>
+          <div class="aw-form-grid">
+            <div>
+              <label class="aw-label" for="r-nombre">Nombre</label>
+              <input id="r-nombre" class="aw-input" type="text" formControlName="nombre" maxlength="200" autocomplete="off" />
+              @if (formRes.controls.nombre.touched && formRes.controls.nombre.invalid) {
+                <p class="aw-field-error">El nombre es obligatorio.</p>
+              }
+            </div>
+            <div>
+              <label class="aw-label" for="r-edad">Edad (meses)</label>
+              <input id="r-edad" class="aw-input" type="number" min="0" formControlName="edad" />
+              @if (formRes.controls.edad.touched && formRes.controls.edad.invalid) {
+                <p class="aw-field-error">Indica una edad válida (0 o más).</p>
+              }
+            </div>
+            <div>
+              <label class="aw-label" for="r-peso">Peso (kg)</label>
+              <input id="r-peso" class="aw-input" type="number" min="1" formControlName="peso" />
+              @if (formRes.controls.peso.touched && formRes.controls.peso.invalid) {
+                <p class="aw-field-error">El peso debe ser mayor a 0.</p>
+              }
+            </div>
+          </div>
+          @if (reglas; as r) {
+            <p class="aw-hint">
+              Potrero {{ etiquetaDeTipo(potrero()!.tipoPotrero) }}: peso mínimo {{ r.pesoMin }} kg{{ r.edadMax ? ', edad máxima ' + r.edadMax + ' meses' : '' }}. El servidor valida estas reglas.
+            </p>
+          }
+          <div class="aw-form-actions">
+            <button class="aw-btn aw-btn-primary" type="submit" [disabled]="guardandoRes()">
+              @if (guardandoRes()) {
+                <span class="aw-spinner" aria-hidden="true"></span> Guardando…
+              } @else {
+                <span class="icon" aria-hidden="true">add</span> Agregar res
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  }
+}

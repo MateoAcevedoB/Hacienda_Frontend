@@ -1,0 +1,95 @@
+<section class="aw-page-header">
+  <h1>Usuarios</h1>
+  <p>Administración de usuarios del sistema (solo administradores).</p>
+</section>
+
+<div class="aw-split">
+  <section class="aw-card">
+    <div class="aw-card-header">Usuarios registrados</div>
+    <div class="aw-card-body">
+      @if (cargando()) {
+        <p class="aw-estado" role="status">
+          <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando usuarios…
+        </p>
+      } @else if (errorListado(); as mensaje) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+      } @else if (usuarios().length === 0) {
+        <div class="aw-empty"><span class="icon" aria-hidden="true">group</span>No hay usuarios.</div>
+      } @else {
+        <div class="aw-tabla-scroll">
+          <table class="aw-table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of usuarios(); track u.nombre) {
+                <tr>
+                  <td>
+                    <span class="icon" aria-hidden="true">person</span> <strong>{{ u.nombre }}</strong>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="aw-card">
+    <div class="aw-card-header">Nuevo usuario</div>
+    <div class="aw-card-body">
+      @if (exito(); as mensaje) {
+        <div class="aw-alert aw-alert-success" role="status">{{ mensaje }}</div>
+      }
+      @if (errorCreacion(); as mensaje) {
+        <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+      }
+      <form [formGroup]="formulario" (ngSubmit)="enviar()" novalidate>
+        <div class="campo">
+          <label class="aw-label" for="u-nombre">Nombre de usuario</label>
+          <input
+            id="u-nombre"
+            class="aw-input"
+            [class.aw-invalid]="nombre.touched && nombre.invalid"
+            type="text"
+            formControlName="nombre"
+            maxlength="100"
+            autocomplete="off"
+          />
+          @if (nombre.touched && nombre.invalid) {
+            <p class="aw-field-error">El nombre es obligatorio (máximo 100 caracteres).</p>
+          }
+        </div>
+        <div class="campo" style="margin-top: 1rem">
+          <label class="aw-label" for="u-clave">Contraseña</label>
+          <input
+            id="u-clave"
+            class="aw-input"
+            [class.aw-invalid]="contrasena.touched && contrasena.invalid"
+            type="password"
+            formControlName="contrasena"
+            autocomplete="new-password"
+          />
+          @if (contrasena.touched && contrasena.invalid) {
+            <p class="aw-field-error">La contraseña es obligatoria.</p>
+          }
+        </div>
+        <p class="aw-hint">
+          El rol depende del nombre de usuario: el backend reconoce admin, empleado y visitante.
+        </p>
+        <div class="aw-form-actions">
+          <button class="aw-btn aw-btn-primary" type="submit" [disabled]="guardando()">
+            @if (guardando()) {
+              <span class="aw-spinner" aria-hidden="true"></span> Creando…
+            } @else {
+              <span class="icon" aria-hidden="true">person_add</span> Crear usuario
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>

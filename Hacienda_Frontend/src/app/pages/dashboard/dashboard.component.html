@@ -1,0 +1,106 @@
+<section class="aw-page-header">
+  <h1>Bienvenido, {{ usuario()?.nombre }}</h1>
+  <p>Resumen de tu hacienda: potreros, ganado, ventas y vacunas.</p>
+</section>
+
+@if (cargando()) {
+  <p class="aw-estado" role="status">
+    <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando resumen…
+  </p>
+} @else {
+  <section class="aw-stats" aria-label="Indicadores">
+    <div class="aw-card aw-stat">
+      <span class="aw-stat-label">Potreros</span>
+      <strong class="aw-stat-value">{{ potreros()?.length ?? '—' }}</strong>
+    </div>
+    <div class="aw-card aw-stat">
+      <span class="aw-stat-label">Reses</span>
+      <strong class="aw-stat-value">{{ totalReses() ?? '—' }}</strong>
+    </div>
+    <div class="aw-card aw-stat">
+      <span class="aw-stat-label">Ventas registradas</span>
+      <strong class="aw-stat-value">{{ ventas()?.length ?? '—' }}</strong>
+    </div>
+    <div class="aw-card aw-stat">
+      <span class="aw-stat-label">Monto vendido</span>
+      <strong class="aw-stat-value">
+        @if (montoVentas() !== null) { {{ montoVentas() | currency: 'USD' : 'symbol' : '1.0-0' }} } @else { — }
+      </strong>
+    </div>
+    <div class="aw-card aw-stat">
+      <span class="aw-stat-label">Vacunas disponibles</span>
+      <strong class="aw-stat-value">{{ vacunas()?.length ?? '—' }}</strong>
+    </div>
+    <div class="aw-card aw-stat">
+      <span class="aw-stat-label">Vacunas vencidas</span>
+      <strong class="aw-stat-value">{{ vacunasVencidas() ?? '—' }}</strong>
+    </div>
+  </section>
+
+  @if (potreros() === null || ventas() === null || vacunas() === null) {
+    <div class="aw-alert aw-alert-danger" role="alert">
+      Algunos indicadores no se pudieron cargar. Se muestran con «—».
+    </div>
+  }
+}
+
+<section class="modulos" aria-label="Módulos">
+  <a class="aw-card modulo" routerLink="/potreros">
+    <span class="modulo-icono"><span class="icon">fence</span></span>
+    <span>
+      <strong>Potreros y reses</strong>
+      <span class="modulo-texto">Organiza los espacios, agrega y vende ganado.</span>
+    </span>
+  </a>
+  <a class="aw-card modulo" routerLink="/ventas">
+    <span class="modulo-icono"><span class="icon">receipt_long</span></span>
+    <span>
+      <strong>Ventas</strong>
+      <span class="modulo-texto">Historial y filtros por potrero o fechas.</span>
+    </span>
+  </a>
+  <a class="aw-card modulo" routerLink="/vacunas">
+    <span class="modulo-icono"><span class="icon">vaccines</span></span>
+    <span>
+      <strong>Vacunas</strong>
+      <span class="modulo-texto">Inventario y aplicación por lote.</span>
+    </span>
+  </a>
+  @if (esAdmin()) {
+    <a class="aw-card modulo" routerLink="/usuarios">
+      <span class="modulo-icono"><span class="icon">group</span></span>
+      <span>
+        <strong>Usuarios</strong>
+        <span class="modulo-texto">Crea y consulta usuarios.</span>
+      </span>
+    </a>
+  }
+</section>
+
+@if (ultimasVentas().length > 0) {
+  <section class="aw-card recientes">
+    <div class="aw-card-header">Últimas ventas</div>
+    <div class="aw-card-body aw-tabla-scroll">
+      <table class="aw-table">
+        <thead>
+          <tr>
+            <th scope="col">Fecha</th>
+            <th scope="col">Potrero</th>
+            <th scope="col">Res</th>
+            <th scope="col" class="aw-num">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of ultimasVentas(); track $index) {
+            <tr>
+              <td>{{ v.fecha | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ v.potreroId }}</td>
+              <td>{{ v.nombreRes }}</td>
+              <td class="aw-num">{{ v.monto | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}

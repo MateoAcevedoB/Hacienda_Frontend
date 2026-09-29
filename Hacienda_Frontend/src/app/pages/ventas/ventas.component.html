@@ -1,0 +1,97 @@
+<section class="aw-page-header">
+  <h1>Ventas</h1>
+  <p>Historial de ventas de ganado. Para vender, entra al detalle de un potrero.</p>
+</section>
+
+<section class="aw-stats" aria-label="Resumen de ventas">
+  <div class="aw-card aw-stat">
+    <span class="aw-stat-label">Ventas listadas</span>
+    <strong class="aw-stat-value">{{ ventas().length }}</strong>
+  </div>
+  <div class="aw-card aw-stat">
+    <span class="aw-stat-label">Monto total</span>
+    <strong class="aw-stat-value">{{ totalMonto() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+  </div>
+  <div class="aw-card aw-stat">
+    <span class="aw-stat-label">Promedio por venta</span>
+    <strong class="aw-stat-value">{{ promedio() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+  </div>
+</section>
+
+<section class="aw-card">
+  <div class="aw-card-header">Filtros</div>
+  <div class="aw-card-body">
+    @if (errorFiltro(); as mensaje) {
+      <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+    }
+    <form [formGroup]="filtro" (ngSubmit)="aplicar()" class="aw-toolbar">
+      <div>
+        <label class="aw-label" for="f-potrero">Potrero</label>
+        <select id="f-potrero" class="aw-input" formControlName="potreroId">
+          <option value="">Todos</option>
+          @for (p of potreros(); track p.identificacion) {
+            <option [value]="p.identificacion">{{ p.identificacion }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="aw-label" for="f-desde">Desde</label>
+        <input id="f-desde" class="aw-input" type="date" formControlName="desde" />
+      </div>
+      <div>
+        <label class="aw-label" for="f-hasta">Hasta</label>
+        <input id="f-hasta" class="aw-input" type="date" formControlName="hasta" />
+      </div>
+      <div class="aw-form-actions">
+        <button class="aw-btn aw-btn-primary" type="submit" [disabled]="cargando()">
+          <span class="icon" aria-hidden="true">filter_alt</span> Filtrar
+        </button>
+        <button class="aw-btn aw-btn-secondary" type="button" (click)="limpiar()">Limpiar</button>
+      </div>
+    </form>
+    <p class="aw-hint">El backend no permite combinar el filtro por potrero con el de fechas.</p>
+  </div>
+</section>
+
+<section class="aw-card" style="margin-top: 1.25rem">
+  <div class="aw-card-header">Historial</div>
+  <div class="aw-card-body">
+    @if (cargando()) {
+      <p class="aw-estado" role="status">
+        <span class="aw-spinner aw-spinner-oscuro" aria-hidden="true"></span> Cargando ventas…
+      </p>
+    } @else if (error(); as mensaje) {
+      <div class="aw-alert aw-alert-danger" role="alert">{{ mensaje }}</div>
+    } @else if (ventas().length === 0) {
+      <div class="aw-empty">
+        <span class="icon" aria-hidden="true">receipt_long</span>
+        No hay ventas para los filtros seleccionados.
+      </div>
+    } @else {
+      <div class="aw-tabla-scroll">
+        <table class="aw-table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Potrero</th>
+              <th scope="col">Res</th>
+              <th scope="col" class="aw-num">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of ventas(); track $index) {
+              <tr>
+                <td>{{ v.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td><a [routerLink]="['/potreros', v.potreroId]">{{ v.potreroId }}</a></td>
+                <td>
+                  <strong>{{ v.nombreRes }}</strong>
+                </td>
+                <td class="aw-num">{{ v.monto | currency: 'USD' : 'symbol' : '1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
